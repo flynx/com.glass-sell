@@ -1,0 +1,8 @@
+
+
+http API:
+	POST /login username password
+		Login a user
+
+	GET /logout
+		Logout a user
