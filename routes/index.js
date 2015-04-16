@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+var express = require('express')
+var router = express.Router()
 
 // This set of routs is responsible for:
 // 	- the root dir
@@ -8,10 +8,10 @@ var router = express.Router();
 // /
 router.get('/', 
 	function(req, res, next) {
-		res.render('index', { title: 'Express' });
+		res.render('index', { title: 'Express' })
 	})
 
 
-module.exports = router;
+module.exports = router
 
 // vim:set ts=4 sw=4 :

@@ -1,16 +1,16 @@
-var express = require('express');
-var passport = require('passport');
-var router = express.Router();
+var express = require('express')
+var passport = require('passport')
+var router = express.Router()
 
 
 // /login
 router.get('/login',
 	function(req, res, next) {
 		if(req.isAuthenticated()){
-			res.redirect('/');
+			res.redirect('/')
 
 		} else {
-			res.render('login', { title: 'Express' });
+			res.render('login', { title: 'Express' })
 		}
 	})
 router.post('/login',
@@ -44,11 +44,11 @@ router.post('/login',
 
 // /logout
 router.get('/logout', function(req, res){
-	req.logout();
-	res.redirect('/');
-});
+	req.logout()
+	res.redirect('/')
+})
 
 
-module.exports = router;
+module.exports = router
 
 // vim:set ts=4 sw=4 :

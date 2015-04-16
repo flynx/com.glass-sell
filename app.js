@@ -8,6 +8,8 @@ var favicon = require('serve-favicon')
 var logger = require('morgan')
 var cookieParser = require('cookie-parser')
 var bodyParser = require('body-parser')
+var passport = require('passport')
+var LocalStrategy = require('passport-local').Strategy
 
 var sessionRoutes = require('./routes/session')
 var index = require('./routes/index')
@@ -20,10 +22,7 @@ app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'jade')
 
 
-// passport...
-var passport = require('passport')
-var LocalStrategy = require('passport-local').Strategy
-
+// passport setup...
 // XXX check password...
 passport.use(new LocalStrategy(
 	function(username, password, done) {
@@ -50,7 +49,6 @@ passport.use(new LocalStrategy(
 	}
 ))
 
-
 // XXX return session id/data to session...
 passport.serializeUser(function(user, done) {
 		console.log('serializeUser: ' + user)
@@ -70,7 +68,6 @@ passport.deserializeUser(function(user, done) {
 		*/
 })
 
-
 // auth middleware...
 function authenticated(req, res, next){
 	// everything is on, continue on...
@@ -87,6 +84,7 @@ function authenticated(req, res, next){
 		res.render('login', { title: 'Express' })
 	}
 }
+
 
 
 app
@@ -108,10 +106,12 @@ app
 			// XXX uses MemoryStore, swithc to Mongo ASAP...
 			// 		see: https://www.npmjs.com/package/connect-mongo
 			//store: new MongoStore({
+			//	XXX
 			//}), 
 		}))
 	.use(passport.initialize())
 	.use(passport.session())
+
 
 
 // routing...

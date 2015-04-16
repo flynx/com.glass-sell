@@ -5,16 +5,16 @@
  */
 
 var fs = require('fs')
-var app = require('../app');
-var debug = require('debug')('GlassSell:server');
-var http = require('http');
-var https = require('https');
+var app = require('../app')
+var debug = require('debug')('GlassSell:server')
+var http = require('http')
+var https = require('https')
 
 
 var credentials = {
 	key: fs.readFileSync('ssl/server.key', 'utf8'),
 	cert: fs.readFileSync('ssl/server.crt', 'utf8'),
-};
+}
 
 
 /**
@@ -22,20 +22,20 @@ var credentials = {
  */
 
 // XXX set default to 80
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+var port = normalizePort(process.env.PORT || '3000')
+app.set('port', port)
 
 // XXX set default to 443
-var httpsPort = normalizePort(process.env.SSL_PORT || '3010');
-app.set('httpsPort', httpsPort);
+var httpsPort = normalizePort(process.env.SSL_PORT || '3010')
+app.set('httpsPort', httpsPort)
 
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
-var sslserver = https.createServer(credentials, app);
+var server = http.createServer(app)
+var sslserver = https.createServer(credentials, app)
 
 
 
@@ -43,13 +43,13 @@ var sslserver = https.createServer(credentials, app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+server.listen(port)
+server.on('error', onError)
+server.on('listening', onListening)
 
-sslserver.listen(httpsPort);
-sslserver.on('error', onError);
-sslserver.on('listening', onListening);
+sslserver.listen(httpsPort)
+sslserver.on('error', onError)
+sslserver.on('listening', onListening)
 
 
 /**
@@ -57,19 +57,19 @@ sslserver.on('listening', onListening);
  */
 
 function normalizePort(val) {
-	var port = parseInt(val, 10);
+	var port = parseInt(val, 10)
 
 	if (isNaN(port)) {
 		// named pipe
-		return val;
+		return val
 	}
 
 	if (port >= 0) {
 		// port number
-		return port;
+		return port
 	}
 
-	return false;
+	return false
 }
 
 /**
@@ -78,25 +78,25 @@ function normalizePort(val) {
 
 function onError(error) {
 	if (error.syscall !== 'listen') {
-		throw error;
+		throw error
 	}
 
 	var bind = typeof port === 'string'
 		? 'Pipe ' + port
-		: 'Port ' + port;
+		: 'Port ' + port
 
 	// handle specific listen errors with friendly messages
 	switch (error.code) {
 		case 'EACCES':
-			console.error(bind + ' requires elevated privileges');
-			process.exit(1);
-			break;
+			console.error(bind + ' requires elevated privileges')
+			process.exit(1)
+			break
 		case 'EADDRINUSE':
-			console.error(bind + ' is already in use');
-			process.exit(1);
-			break;
+			console.error(bind + ' is already in use')
+			process.exit(1)
+			break
 		default:
-			throw error;
+			throw error
 	}
 }
 
@@ -105,11 +105,11 @@ function onError(error) {
  */
 
 function onListening() {
-	var addr = server.address();
+	var addr = server.address()
 	var bind = typeof addr === 'string'
 		? 'pipe ' + addr
-		: 'port ' + addr.port;
-	debug('Listening on ' + bind);
+		: 'port ' + addr.port
+	debug('Listening on ' + bind)
 }
 
 
