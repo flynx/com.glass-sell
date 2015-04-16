@@ -27,15 +27,16 @@ var LocalStrategy = require('passport-local').Strategy
 // XXX check password...
 passport.use(new LocalStrategy(
 	function(username, password, done) {
+		// XXX STUB: check passwords for real...
 		if(username == password){
 			return done(null, username)
 		} else {
 			return done(null, false)
 		}
-		/*
+		/* XXX what is used here for the user store...
 		User.findOne({ username: username }, function(err, user) {
 			if (err) { 
-	return done(err) 
+				return done(err) 
 			}
 			if (!user) {
 				return done(null, false, { message: 'Incorrect username.' })
@@ -60,7 +61,7 @@ passport.serializeUser(function(user, done) {
 passport.deserializeUser(function(user, done) {
 		console.log('deSerializeUser: ' + user)
 		done(null, user)
-/*
+		/*
 		db.users.findById(id, function(err, user){
 				console.log(user)
 				if(!err) done(null, user)
@@ -72,48 +73,54 @@ passport.deserializeUser(function(user, done) {
 
 // auth middleware...
 function authenticated(req, res, next){
+	// everything is on, continue on...
 	if(req.isAuthenticated()){
 		return next()
+
+	// need to login...
 	} else {
-		// XXX should render the login form, but keep the path...
-		//	...and open the path on login
-		//	XXX store the path in session to get back to it when we are done...
+		// store the path to redirect after login....
 		req.session.url = req.url
+
+		// NOTE: we are rendering in place rather that redirecting to 
+		// 		make the path retntion trivial...
 		res.render('login', { title: 'Express' })
-		//res.redirect('/login')
 	}
 }
 
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'))
-app.use(logger('dev'))
-app.use(forceSSL)
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(cookieParser())
-app.use(express.static(path.join(__dirname, 'public')))
-// NOTE: this must be after the static stuff...
-app.use(session({
-	secret: 'keyboard cat',
-	resave: false,
-	saveUninitialized: false,
-	//		m	 s	  ms
-	maxAge: 20 * 60 * 1000,
-	// XXX uses MemoryStore, swithc to Mongo ASAP...
-	// 		see: https://www.npmjs.com/package/connect-mongo
-	//store: new MongoStore({
-	//}), 
-}))
-app.use(passport.initialize())
-app.use(passport.session())
+app
+	// uncomment after placing your favicon in /public
+	//.use(favicon(__dirname + '/public/favicon.ico'))
+	.use(logger('dev'))
+	.use(forceSSL)
+	.use(bodyParser.json())
+	.use(bodyParser.urlencoded({ extended: false }))
+	.use(cookieParser())
+	.use(express.static(path.join(__dirname, 'public')))
+	// NOTE: this must be after the static stuff...
+	.use(session({
+			secret: 'keyboard cat',
+			resave: false,
+			saveUninitialized: false,
+			//		m	 s	  ms
+			maxAge: 20 * 60 * 1000,
+			// XXX uses MemoryStore, swithc to Mongo ASAP...
+			// 		see: https://www.npmjs.com/package/connect-mongo
+			//store: new MongoStore({
+			//}), 
+		}))
+	.use(passport.initialize())
+	.use(passport.session())
 
 
-app.use('/', sessionRoutes)
-app.use('/', authenticated, index)
+// routing...
+app
+	.use('/', sessionRoutes)
+	.use('/', authenticated, index)
 
-// XXX add roles...
-app.use('/users', authenticated, users)
+	// XXX add roles...
+	.use('/users', authenticated, users)
 
 
 
