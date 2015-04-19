@@ -1,8 +1,8 @@
 var express = require('express')
 var forceSSL = require('express-force-ssl')
-//var mongodb = require('mongodb')
+var mongodb = require('mongodb')
 var session = require('express-session')
-//var MongoStore = require('connect-mongo')(session)
+var MongoStore = require('connect-mongo')(session)
 var path = require('path')
 var favicon = require('serve-favicon')
 var logger = require('morgan')
@@ -105,9 +105,9 @@ app
 			maxAge: 20 * 60 * 1000,
 			// XXX uses MemoryStore, swithc to Mongo ASAP...
 			// 		see: https://www.npmjs.com/package/connect-mongo
-			//store: new MongoStore({
-			//	XXX
-			//}), 
+			store: new MongoStore({
+				url: 'mongodb://localhost/GlassSell',
+			}), 
 		}))
 	.use(passport.initialize())
 	.use(passport.session())
