@@ -1,6 +1,7 @@
 var express = require('express')
 var forceSSL = require('express-force-ssl')
 var mongodb = require('mongodb')
+var mongoose = require('mongoose')
 var session = require('express-session')
 var MongoStore = require('connect-mongo')(session)
 var path = require('path')
@@ -8,65 +9,13 @@ var favicon = require('serve-favicon')
 var logger = require('morgan')
 var cookieParser = require('cookie-parser')
 var bodyParser = require('body-parser')
-var passport = require('passport')
-var LocalStrategy = require('passport-local').Strategy
+var passport = require('./config/passport')(require('passport'))
 
 var sessionRoutes = require('./routes/session')
 var index = require('./routes/index')
 var users = require('./routes/users')
 
-var app = express()
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'jade')
-
-
-// passport setup...
-// XXX check password...
-passport.use(new LocalStrategy(
-	function(username, password, done) {
-		// XXX STUB: check passwords for real...
-		if(username == password){
-			return done(null, username)
-		} else {
-			return done(null, false)
-		}
-		/* XXX what is used here for the user store...
-		User.findOne({ username: username }, function(err, user) {
-			if (err) { 
-				return done(err) 
-			}
-			if (!user) {
-				return done(null, false, { message: 'Incorrect username.' })
-			}
-			if (!user.validPassword(password)) {
-				return done(null, false, { message: 'Incorrect password.' })
-			}
-			return done(null, user)
-		})
-		*/
-	}
-))
-
-// XXX return session id/data to session...
-passport.serializeUser(function(user, done) {
-		console.log('serializeUser: ' + user)
-		done(null, user)
-})
-
-// XXX check if session is still valid...
-passport.deserializeUser(function(user, done) {
-		console.log('deSerializeUser: ' + user)
-		done(null, user)
-		/*
-		db.users.findById(id, function(err, user){
-				console.log(user)
-				if(!err) done(null, user)
-				else done(err, null)	
-		})
-		*/
-})
 
 // auth middleware...
 function authenticated(req, res, next){
@@ -87,6 +36,20 @@ function authenticated(req, res, next){
 
 
 
+mongoose.connect('mongodb://localhost/GlassSell')
+
+
+
+var app = express()
+
+
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'))
+app.set('view engine', 'jade')
+
+
+
 app
 	// uncomment after placing your favicon in /public
 	//.use(favicon(__dirname + '/public/favicon.ico'))
@@ -103,10 +66,12 @@ app
 			saveUninitialized: false,
 			//		m	 s	  ms
 			maxAge: 20 * 60 * 1000,
-			// XXX uses MemoryStore, swithc to Mongo ASAP...
-			// 		see: https://www.npmjs.com/package/connect-mongo
+			// NOTE: this will automatically create the session store...
+			// NOTE: for more details see: 
+			// 		https://www.npmjs.com/package/connect-mongo
 			store: new MongoStore({
 				url: 'mongodb://localhost/GlassSell',
+				ttl: 20 * 60 * 1000,
 			}), 
 		}))
 	.use(passport.initialize())

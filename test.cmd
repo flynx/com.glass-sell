@@ -1,3 +1,3 @@
 
 
-set DEBUG=myapp & node .\bin\www
+set DEBUG=myapp & nodemon .\bin\www
