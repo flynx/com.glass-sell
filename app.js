@@ -64,14 +64,18 @@ app
 			secret: 'keyboard cat',
 			resave: false,
 			saveUninitialized: false,
-			//		m	 s	  ms
-			maxAge: 20 * 60 * 1000,
+			cookie: {
+				//		m	 s	  ms
+				maxAge: 20 * 60 * 1000,
+			},
 			// NOTE: this will automatically create the session store...
 			// NOTE: for more details see: 
 			// 		https://www.npmjs.com/package/connect-mongo
+			// XXX need to get list of sessions out of this...
 			store: new MongoStore({
 				url: 'mongodb://localhost/GlassSell',
 				ttl: 20 * 60 * 1000,
+				stringify: false,
 			}), 
 		}))
 	.use(passport.initialize())

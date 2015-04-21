@@ -1,7 +1,11 @@
 
+// XXX this expects the sessions to be stored in the same DB as the data...
+var mongoose = require('mongoose')
+
 var LocalStrategy = require('passport-local').Strategy
 
-//var User = require('./models/user')
+var User = require('../models/user')
+
 
 module.exports = function(passport){
 
@@ -13,16 +17,13 @@ module.exports = function(passport){
 		}))
 
 
-	// XXX check password...
+	// check password...
+	// NOTE: this will silently remove all other sessions by this user...
+	// XXX this is a potential DoS attack: fight between two instances 
+	// 		kicking each other off...
+	// XXX add roles to req.session.roles
 	passport.use(new LocalStrategy(
 		function(username, password, done) {
-			// XXX STUB: check passwords for real...
-			if(username == password){
-				return done(null, username)
-			} else {
-				return done(null, false)
-			}
-			/* XXX what is used here for the user store...
 			User.findOne({ username: username }, function(err, user) {
 				if (err) { 
 					return done(err) 
@@ -33,29 +34,37 @@ module.exports = function(passport){
 				if (!user.validPassword(password)) {
 					return done(null, false, { message: 'Incorrect password.' })
 				}
+
+				// remove prior sessions...
+				// XXX avoid being mongo-specific...
+				mongoose.connection.collection('sessions')
+					.remove({ 'session.passport.user': user.id }, 
+						function(err, res){
+							if(err){
+								// XXX report error...
+								
+							// report sessions closed...
+							} else if(res.result.n > 0){
+								// XXX do propper logging...
+								//console.log('removed '+ res.result.n +' sessions.')
+							}
+						})
+
 				return done(null, user)
 			})
-			*/
 		}
 	))
 
-	// XXX return session id/data to session...
 	passport.serializeUser(function(user, done) {
-			console.log('serializeUser: ' + user)
-			done(null, user)
+			//done(null, user)
+			done(null, user.id)
 	})
 
-	// XXX check if session is still valid...
-	passport.deserializeUser(function(user, done) {
-			console.log('deSerializeUser: ' + user)
-			done(null, user)
-			/*
-			db.users.findById(id, function(err, user){
-					console.log(user)
-					if(!err) done(null, user)
-					else done(err, null)	
+	passport.deserializeUser(function(id, done) {
+			//done(null, id)
+			User.findById(id, function(err, user) {
+				done(err, user)
 			})
-			*/
 	})
 
 	return passport
