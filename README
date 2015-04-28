@@ -1,4 +1,4 @@
-to install:
+to install and run:
 	- install node
 	- install mongodb
 	- npm install
