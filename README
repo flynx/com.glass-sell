@@ -2,6 +2,7 @@ to install:
 	- install node
 	- install mongodb
 	- npm install
+	- generate ssl certificates (ssl/README)
 	- npm start
 		this will work with the default mongo install scheme, for
 		custom install we'll need to tweak the config (XXX)
