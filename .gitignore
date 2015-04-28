@@ -4,3 +4,11 @@ test
 *.crt
 *.key
 *.csr
+logs
+*.log
+pids
+*.pid
+*.seed
+
+# Compiled binary addons (http://nodejs.org/api/addons.html)
+build/Release
