@@ -1,0 +1,23 @@
+
+//- XXX needs a way to set the class...
+mixin JSONtable(obj, cols, attrs)
+	table
+		//- build header column if cols is passed...
+		if cols
+			th
+				each col in cols
+					td= col
+
+		//- build table body...
+		each elem in obj
+			tr
+				//- if attrs are suplied use them to order the values...
+				if attrs
+					each attr in attrs
+						td= elem[attr]
+				else
+					each val in elem
+						td= val
+
+
+//- vim:set ts=4 sw=4 :
