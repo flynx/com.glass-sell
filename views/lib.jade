@@ -4,16 +4,39 @@
 
 //-
 	Usage:
+		JSONTable([<css-class>,][ <col-names>, [<attributes>,]] <data>)
+
+		JSONTable(<data>)
+		JSONTable(<col-names>, <data>)
+		JSONTable(<col-names>, <attributes>, <data>)
 		JSONTable(<css-class>, <data>)
-		JSONTable(<css-class>, <data>, <col-names>)
-		JSONTable(<css-class>, <data>, <col-names>, <attributes>)
-//- 
-	XXX make this more cleaver about arguments, e.g.
 		JSONTable(<css-class>, <col-names>, <data>)
 		JSONTable(<css-class>, <col-names>, <attributes>, <data>)
-		...this looks more natural...
 
-mixin JSONTable(cls, obj, cols, attrs)
+mixin JSONTable(a, b, c, d)
+	//- normalize args...
+	//- no cls, shift args...
+	- if(typeof(a) != typeof('str'))
+		- d = c
+		- c = b
+		- b = a
+		- a = ''
+
+	//- format the rest of the args...
+	- if(c == null)
+		- var obj = b
+		- var cols = null
+		- var attrs = null
+	- else if(d == null)
+		- var obj = c
+		- var cols = b
+		- var attrs = null
+	- else
+		- var obj = d
+		- var cols = b
+		- var attrs = c
+
+	//- now for the actual html...
 	table(class=cls, border=1, cellspacing=0)
 		//- build header column if cols is passed...
 		if cols
@@ -32,25 +55,6 @@ mixin JSONTable(cls, obj, cols, attrs)
 					each val in elem
 						td= val
 
-
-mixin JSONDivTable(cls, obj, cols, attrs)
-	.table-block(class=cls)
-		//- build header column if cols is passed...
-		if cols
-			.header
-				each col in cols
-					.cell= col
-
-		//- build table body...
-		each elem in obj
-			.row
-				//- if attrs are suplied use them to order the values...
-				if attrs
-					each attr in attrs
-						.cell= elem[attr]
-				else
-					each val in elem
-						.cell= val
 
 
 //- vim:set ts=4 sw=4 :
