@@ -6,4 +6,7 @@ block content
 	h1= title
 	p Welcome to #{title}
 
+	p
+		+JSONTable('moo', [[1,1,1], [2,2,2], [3,3,3], [4,4,4]], ['a', 'b', 'c'])
+
 //- vim:set ts=4 sw=4 :
