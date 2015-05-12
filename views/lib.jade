@@ -40,20 +40,22 @@ mixin JSONTable(a, b, c, d)
 	table(class=cls, border=1, cellspacing=0)
 		//- build header column if cols is passed...
 		if cols
-			tr
-				each col in cols
-					th= col
+			thead
+				tr
+					each col in cols
+						th= col
 
 		//- build table body...
-		each elem in obj
-			tr
-				//- if attrs are suplied use them to order the values...
-				if attrs
-					each attr in attrs
-						td= elem[attr]
-				else
-					each val in elem
-						td= val
+		tbody
+			each elem in obj
+				tr
+					//- if attrs are suplied use them to order the values...
+					if attrs
+						each attr in attrs
+							td= elem[attr]
+					else
+						each val in elem
+							td= val
 
 
 
