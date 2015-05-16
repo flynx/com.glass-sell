@@ -1,0 +1,39 @@
+include lib
+
+extends layout
+
+
+mixin userActions(user)
+	button= user.username
+
+
+block content
+	h1= title
+
+	//- users contains a JSON set of users...
+	+JSONTable({
+				User: 'username', 
+				Role: 'role',
+				// this seems like a hack...
+				'Actions': function(elem){ 
+					return [
+						'<a href="/user?username='+elem.username+'">view</a>',
+						'<a href="/user/edit?username='+elem.username+'">edit</a>',
+						'<a href="/user/suspend?username='+elem.username+'">suspend</a>',
+						'<a href="/user/delete?username='+elem.username+'">delete</a>',
+						].join(' ')
+				},
+			}, users)
+	//- XXX these need scripting...
+		//-button edit
+		//-button suspend
+		//-button delete
+
+	//- XXX need user list paging...
+		
+
+	a(href='/user') my data
+	a(href='/user/edit?mode=new') new user
+
+
+//- vim:set ts=4 sw=4 :

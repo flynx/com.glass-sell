@@ -4,20 +4,36 @@
 
 //-
 	Usage:
-		JSONTable([<css-class>,][ <col-names>, [<attributes>,]] <data>)
+		+JSONTable([<css-class>,][ <col-names>,] <data>)
+			[<block>]
 
-		JSONTable(<data>)
-		JSONTable(<col-names>, <data>)
-		JSONTable(<col-names>, <attributes>, <data>)
-		JSONTable(<css-class>, <data>)
-		JSONTable(<css-class>, <col-names>, <data>)
-		JSONTable(<css-class>, <col-names>, <attributes>, <data>)
+		+JSONTable(<data>)
+		+JSONTable(<cols>, <data>)
+		+JSONTable(<css-class>, <data>)
+		+JSONTable(<css-class>, <cols>, <data>)
 
-mixin JSONTable(a, b, c, d)
+	<cols> can be:
+		- null
+		- list of attr names
+		- object with:
+			<key>: column name
+			<value>: attr name or function
+
+	<block>
+		if given will be repeated in the last cell per row.
+
+	NOTE: at this point jade does not support block arguments so the block
+		has to be generic and figure out what row it is in on the client
+		side...
+	NOTE: to get around the above restriction it is possible to pass a 
+		function to the value of the <cols> and generate an html string,
+		but generating html in JS in Jade is a hack ;)
+	
+
+mixin JSONTable(a, b, c)
 	//- normalize args...
 	//- no cls, shift args...
 	- if(typeof(a) != typeof('str'))
-		- d = c
 		- c = b
 		- b = a
 		- a = ''
@@ -26,36 +42,42 @@ mixin JSONTable(a, b, c, d)
 	- if(c == null)
 		- var obj = b
 		- var cols = null
-		- var attrs = null
 	- else if(d == null)
 		- var obj = c
 		- var cols = b
-		- var attrs = null
 	- else
 		- var obj = d
 		- var cols = b
-		- var attrs = c
 
 	//- now for the actual html...
 	table(class=cls, border=1, cellspacing=0)
 		//- build header column if cols is passed...
-		if cols
+		-if(cols && cols.constructor != Array)
 			thead
 				tr
-					each col in cols
+					-for(var col in cols)
 						th= col
+
+					if block
+						th
 
 		//- build table body...
 		tbody
 			each elem in obj
 				tr
-					//- if attrs are suplied use them to order the values...
-					if attrs
-						each attr in attrs
-							td= elem[attr]
+					if cols
+						each attr in cols
+							if attr instanceof Function
+								td!= attr(elem)
+							else
+								td= elem[attr]
 					else
 						each val in elem
 							td= val
+
+					if block
+						td
+							block
 
 
 

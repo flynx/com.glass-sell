@@ -1,0 +1,26 @@
+extends layout
+
+block content
+	h1= title
+
+	table
+		tr
+			th User
+			td= user.username
+		tr
+			th Role
+			td= user.role
+		tr
+			td
+			td
+				button change password
+		tr
+			td
+			td
+				a(href='/user/edit?username='+user.username) edit info
+
+	if role == 'root'
+		a(href='/user/list') user list
+
+
+//- vim:set ts=4 sw=4 :

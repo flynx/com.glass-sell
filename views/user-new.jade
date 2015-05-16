@@ -1,0 +1,21 @@
+extends layout
+
+block content
+	h1= title
+	form(action='/user', method='post')
+		table
+			tr
+				th User
+				td
+					input(type='text' name='username' value=user.username)
+			tr
+				th Password
+				td
+					input(type='password' name='password')
+					input(type='password-confirm' name='password')
+			tr
+				th Role
+				td
+					input(type='text' name='role' value=user.role)
+
+//- vim:set ts=4 sw=4 :

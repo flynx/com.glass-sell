@@ -1,0 +1,37 @@
+extends layout
+
+block content
+	h1= title
+	form(action='/user', method='post')
+		table
+			tr
+				th User
+				//-td= user.username
+				td
+					if mode == 'new'
+						input(type='text' name='username' placeholder='User name')
+					else
+						!{user.username}
+						input(type='hidden' name='username' value=user.username)
+			tr
+				th Password
+				td
+					input(type='password' name='password' placeholder='Password')
+					input(type='password' name='password-confirm')
+			tr
+				th Role
+				if role == 'root'
+					td
+						if mode == 'new'
+							input(type='text' name='role' value='user')
+						else
+							input(type='text' name='role' value=user.role)
+				else
+					td= user.role
+			tr
+				th 
+				td
+					input(type='submit' value='save')
+
+
+//- vim:set ts=4 sw=4 :

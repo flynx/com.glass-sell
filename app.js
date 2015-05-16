@@ -89,7 +89,7 @@ app
 	.use('/', authenticated, index)
 
 	// XXX add roles...
-	.use('/users', authenticated, users)
+	.use('/user', authenticated, users)
 
 
 
