@@ -209,13 +209,48 @@ router.get('/delete', function(req, res, next) {
 						}
 					})
 				} else {
-					res.redirect('list')
+					return res.redirect(req.get('Referrer') || '/')
 				}
 			})
 		}
 	})
 })
 
+router.get('/toggleSuspend', restrictRole('root'), function(req, res, next) {
+	var username = req.body.username || req.query.username
+
+	getUser(req, function(err, user){
+		if(err || user == null || user.username == req.user.username){
+			res.render('error', { 
+				message: err || 'Can\'t suspend.',
+				error: {
+					status: '',
+					stack: ''
+				}
+			})
+
+		// toggle suspend...
+		} else {
+			user.suspended = !user.suspended
+
+			user.save(function(err){
+				if(err){
+					res.render('error', { 
+						message: err || 'Can\'t save.',
+						error: {
+							status: '',
+							stack: ''
+						}
+					})
+
+				// do the suspend...
+				} else {
+					return res.redirect(req.get('Referrer') || '/')
+				}
+			})
+		}
+	})
+})
 
 // list users...
 router.get('/list', restrictRole('root'), function(req, res, next) {

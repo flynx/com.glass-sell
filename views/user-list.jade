@@ -14,12 +14,13 @@ block content
 	+JSONTable({
 				User: 'username', 
 				Role: 'role',
+				Suspended: 'suspended',
 				// this seems like a hack...
 				'Actions': function(elem){ 
 					return [
 						'<a href="/user?username='+elem.username+'">view</a>',
 						'<a href="/user/edit?username='+elem.username+'">edit</a>',
-						'<a href="/user/suspend?username='+elem.username+'">suspend</a>',
+						'<a href="/user/toggleSuspend?username='+elem.username+'">toggle suspend</a>',
 						'<a href="/user/delete?username='+elem.username+'">delete</a>',
 						].join(' ')
 				},

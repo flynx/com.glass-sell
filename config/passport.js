@@ -34,6 +34,10 @@ module.exports = function(passport){
 				if (!user.validPassword(password)) {
 					return done(null, false, { message: 'Incorrect password.' })
 				}
+				// XXX check if user is suspended, if yes show error...
+				if(user.suspended){
+					return done(null, false, { message: 'User suspended.' })
+				}
 
 				// remove prior sessions...
 				// XXX avoid being mongo-specific...

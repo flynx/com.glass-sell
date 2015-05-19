@@ -34,6 +34,12 @@ function authenticated(req, res, next){
 	}
 }
 
+function notSuspended(req, res, next){
+	if(req.user && req.user.suspended){
+		req.logout()
+	}
+	return next()
+}
 
 
 mongoose.connect('mongodb://localhost/GlassSell')
@@ -80,6 +86,7 @@ app
 		}))
 	.use(passport.initialize())
 	.use(passport.session())
+	.use(notSuspended)
 
 
 
