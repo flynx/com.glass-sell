@@ -24,10 +24,11 @@
 // 	}
 //
 //
-// NOTE: empty fields in CSV will not be populated.
+// Empty fields will be skipped unless fill is given, then they will be 
+// set with fill value.
 var csv2json =
 exports.csv2json =
-function(data){
+function(data, fill){
 	var res = []
 
 	// row 0 is col definition...
@@ -37,9 +38,10 @@ function(data){
 	data.forEach(function(e){
 		var elem = {}
 		cols.forEach(function(col, i){
+			var val = (e[i] == null || e[i] == '') ? fill : e[i]
 
 			// skip empty fields...
-			if(e[i] == ''){
+			if(val == null){
 				return
 			}
 
@@ -56,7 +58,7 @@ function(data){
 			}
 		
 			// write our data...
-			cur[path[0]] = e[i]
+			cur[path[0]] = val
 		})
 		res.push(elem)
 	})

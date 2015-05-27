@@ -14,6 +14,7 @@ var passport = require('./config/passport')(require('passport'))
 var sessionRoutes = require('./routes/session')
 var index = require('./routes/index')
 var users = require('./routes/users')
+var select = require('./routes/select')
 
 
 
@@ -94,9 +95,8 @@ app
 app
 	.use('/', sessionRoutes)
 	.use('/', authenticated, index)
-
-	// XXX add roles...
 	.use('/user', authenticated, users)
+	.use('/select', authenticated, select)
 
 
 

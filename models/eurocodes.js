@@ -1,7 +1,8 @@
-// load the things we need
+
+var fs = require('fs') 
 var mongoose = require('mongoose')
 var csv = require('csv')
-var csv2json = require('../util/misc')
+var csv2json = require('../util/misc').csv2json
 
 
 // XXX usr .distinct(<field>) to build a completion index...
@@ -10,116 +11,33 @@ var csv2json = require('../util/misc')
 // 			car.manufacturer <=> euroCode.manufacturer
 
 
-var complete_fields = [
-	'car.manufacturer',
-	'car.series',
-	'car.model',
-	'car.modelIdentificator',
-	'car.bodyNumber',
-	'car.type',
-	'car.typeCarBody',
-	'car.doors',
-	'car.region',
+function loadConfig(path){
+	var res = {}
+	// XXX this needs to block the app until it's done...
+	var data = res.fields = JSON.parse(fs.readFileSync(path, {encoding: 'utf-8'}))
+		
+	// completion...
+	res.complete = []
+	for(var e in data){
+		if(data[e].trim().toLowerCase() == 'c'){
+			res.complete.push(e)
+		}
+	}
 
-	'product.product',
-	'product.sizeGlass',
-	'product.glassManufacturer',
-	'product.codeGlassManufacturer',
-	'product.euroCode',
-	'product.scanCode',
-	'product.USACode',
-	'product.XYGCode',
+	// data model...
+	var cols = [Object.keys(data), []]
 
-	'euroCode.manufacturer',
-	'euroCode.model',
-	'euroCode.glassType',
-	'euroCode.glassAccessory',
-	'euroCode.glassTint',
-	'euroCode.accessoryType',
-	'euroCode.topTints',
-	'euroCode.bodyType',
-	'euroCode.bodyDoors',
-	'euroCode.positionGlass',
-	'euroCode.variant,
-]
+	res.schema = csv2json(cols, String)
 
-// get this straight from ../data/db.csv
-var ECode_cols = {
-	idECode: String,
-	statusECode: String,
-
-	car: {
-		manufacturer: String,
-		series: String,
-		model: String,
-		modelIdentificator: String,
-		bodyNumber: String,
-		fromYear: String,
-		toYear: String,
-		type: String,
-		typeCarBody: String,
-		doors: String,
-		region: String,
-	},
-
-	product: {
-		product: String,
-		sizeGlass: String,
-		glassManufacturer: String,
-		codeGlassManufacturer: String,
-		euroCode: String,
-		scanCode: String,
-		USACode: String,
-		XYGCode: String,
-	},
-
-	euroCode: {
-		manufacturer: String,
-		model: String,
-		glassType: String,
-		glassAccessory: String,
-		glassTint: String,
-		accessoryType: String,
-		topTints: String,
-		bodyType: String,
-		bodyDoors: String,
-		positionGlass: String,
-
-		// characteristics...
-		A: String,
-		B: String,
-		C: String,
-		D: String,
-		E: String,
-		F: String,
-		G: String,
-		H: String,
-		I: String,
-		J: String,
-		K: String,
-		L: String,
-		M: String,
-		N: String,
-		O: String,
-		P: String,
-		Q: String,
-		R: String,
-		S: String,
-		T: String,
-		U: String,
-		V: String,
-		W: String,
-		X: String,
-		Y: String,
-		Z: String,
-
-		//modification: String,
-		variant: String,
-	},
+	return res
 }
 
-// define the schema for our user model
-var EuroCodeSchema = mongoose.Schema(ECode_cols)
+
+var config = loadConfig('config/db-col-format.json')
+
+
+var EuroCodeSchema = mongoose.Schema(config.schema)
+
 
 // XXX do a partial version...
 EuroCodeSchema.methods.getFieldValues = function(query, callback){
@@ -136,47 +54,68 @@ EuroCodeSchema.methods.getFieldValues = function(query, callback){
 	// 		translate to N queries...
 	// 		...one way to do it is to group _id: null and $addToSet each
 	// 		field...
-	// XXX error checking...
 	// XXX can we reuse a query like this???
-	complete_fields.forEach(function(n){
+	config.complete.forEach(function(n){
 		query.distinct(n, function(err, lst){
 			// XXX check for errors...
+			if(err){
+				return callback(err)
+			}
 		
 			res[n] = lst
 
 			// res is full, we can return it...
 			if(Object.keys(res).length == complete_fields.length){
-				callback(res)
+				callback(err, res)
 			}
 		})
 	})
 }
 
 
-EuroCodeSchema.methods.batchLoadCSV = function(data, callback){
+// create the model for users and expose it to our app
+var EuroCode =
+module.exports = mongoose.model('EuroCode', EuroCodeSchema)
+
+// XXX do we need to split the data to chunks here???
+// XXX use id as primary key...
+EuroCode.batchLoadCSV = function(data, callback){
 	csv.parse(data, {
 			delimiter: ';',
 		}, 
 		function(err, data){
 			if(err){
-				// XXX report errors...
 				return callback(err)
 			}
 
 			var res = csv2json(data)
 
 			// populate...
+			EuroCode.collection.insert(res, function(err, data){
+				callback(err, data)
+			})
+			/*
 			EuroCode.create(res)
-				.then(function(err){
-					// XXX
-					callback(err, res)
+				// XXX do error handling...
+				// XXX
+				.then(function(data){
+					// XXX for some reason this does not populate...
+					callback(null, data)
 				})
+				*/
 		})
 }
 
-// create the model for users and expose it to our app
-var EuroCode =
-module.exports = mongoose.model('EuroCode', EuroCodeSchema)
+
+
+/*
+EuroCode.batchLoadCSV(fs.readFileSync('data/ecode-data.csv', {encoding: 'utf-8'}), 
+		function(e, d){
+			console.log('###', e, d)
+		})
+*/
+
+
 
 
 // vim:set ts=4 sw=4 nowrap :
