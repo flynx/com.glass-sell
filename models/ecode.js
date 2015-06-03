@@ -8,6 +8,7 @@ var ECodeSchema = mongoose.Schema({
 	// the full eurocode...
 	_id: String,
 
+	// XXX would be good to generate this automatically...
 	part: {
 		manufacturer: String,
 		model: String,
@@ -62,6 +63,7 @@ var ECodeSchema = mongoose.Schema({
 
 // XXX do an 'update' version of this...
 // XXX might be good to add missing ecodes instead of complaining...
+// 		...will need ecode parser for this...
 ECodeSchema.pre('save', function(next){
 	var ecodes = this.accessories.optional || []
 	ecodes = ecodes.concat(this.accessories.recommended || [])
@@ -71,6 +73,67 @@ ECodeSchema.pre('save', function(next){
 			function(){ next() },
 			function(err){ next(err) })
 })
+
+
+
+// NOTE: this will skip ecodes that do not have their own doc...
+// NOTE: _id of current object is not included in the result unless it 
+// 		is referenced in the dependency tree...
+function listEcodes(type){
+	return function(){
+		var res = [] 
+		var to_see = this.accessories[type] ? this.accessories[type].slice() : []
+
+		return new Promise(function(resolve, reject){
+			function _get(){
+				// nothing else to see...
+				if(to_see.length == 0){
+					resolve(res)
+				}
+
+				ECode
+					.find({_id: { $in: to_see.slice()}})
+					.select('_id accessories.' + type)
+					.exec()
+						// got some or all the ecodes...
+						.then(function(data){
+							data.forEach(function(e){
+								// add cur to res...
+								if(res.indexOf(e._id) < 0){
+									res.push(e._id)
+								}
+								// remove from to_see...
+								var i = to_see.indexOf(e._id)
+								if(i >= 0){
+									to_see.splice(i, 1)
+								}
+								// add stuff to to_see...
+								if(e.accessories[type]){
+									e.accessories[type].forEach(function(e){
+										if(res.indexOf(e) < 0 && to_see.indexOf(e) < 0){
+											to_see.push(e)
+										}
+									})
+								}
+
+								// get next batch...
+								_get()
+							})
+						})
+						// something broke...
+						.then(null, function(err){
+							reject(err)
+						})
+			}
+
+			_get()
+		})
+	}
+}
+
+ECodeSchema.methods.getOprionalEcodes = listEcodes('optional')
+ECodeSchema.methods.getRequiredEcodes = listEcodes('recommended')
+
 
 
 var ECode = 
@@ -116,6 +179,12 @@ ECode.checkECode = function(ecode, callback){
 				})
 		})
 } 
+
+
+// XXX
+ECode.partsFromString = function(ecode){
+}
+
 
 
 // vim:set ts=4 sw=4 nowrap :
