@@ -76,49 +76,83 @@ ECodeSchema.pre('save', function(next){
 
 
 
+// Returns:
+// 	{
+// 		<ecode>: {
+// 			origin: [<ecode>, ...]
+// 		},
+// 		...
+// 	}
+//
+//
 // NOTE: this will skip ecodes that do not have their own doc...
 // NOTE: _id of current object is not included in the result unless it 
 // 		is referenced in the dependency tree...
-function listEcodes(type){
+// XXX might be good to add origin ecode to each result...
+// 		...also if an item is added more than once, it might be logical 
+// 		to add count...
+// XXX is this a source for race conditions???
+// XXX test...
+function listAccessories(type){
 	return function(){
-		var res = [] 
-		var to_see = this.accessories[type] ? this.accessories[type].slice() : []
+		var res = {}
+		var to_see = {}
+
+		// populate the to_see object...
+		(this.accessories[type] ? this.accessories[type].slice() : [])
+			.forEach(function(e){ 
+				to_see[e] = [this._id]
+			})
 
 		return new Promise(function(resolve, reject){
 			function _get(){
 				// nothing else to see...
-				if(to_see.length == 0){
+				if(Object.keys(to_see).length == 0){
 					resolve(res)
 				}
 
 				ECode
-					.find({_id: { $in: to_see.slice()}})
+					.find({_id: { $in: Object.keys(to_see)}})
 					.select('_id accessories.' + type)
 					.exec()
 						// got some or all the ecodes...
 						.then(function(data){
 							data.forEach(function(e){
-								// add cur to res...
-								if(res.indexOf(e._id) < 0){
-									res.push(e._id)
+								var id = e._id
+
+								// new result...
+								if(!(id in res)){
+									res[id] = {origin: to_see[id]}
+
+								// add origin(s) to existing result...
+								} else {
+									res[id].origin = res[id].origin.concat(to_see[id])
 								}
-								// remove from to_see...
-								var i = to_see.indexOf(e._id)
-								if(i >= 0){
-									to_see.splice(i, 1)
-								}
+
+								delete to_see[id]
+
 								// add stuff to to_see...
 								if(e.accessories[type]){
 									e.accessories[type].forEach(function(e){
-										if(res.indexOf(e) < 0 && to_see.indexOf(e) < 0){
-											to_see.push(e)
+										// add origin...
+										if(e in res){
+											res[e].origin.push(id)
+										}
+
+										// add source...
+										if(e in to_see){
+											to_see[e].push(id)
+										}
+
+										if(!(e in res) && !(e in to_see)){
+											to_see[e] = [id]
 										}
 									})
 								}
-
-								// get next batch...
-								_get()
 							})
+
+							// get next batch...
+							_get()
 						})
 						// something broke...
 						.then(null, function(err){
@@ -131,8 +165,8 @@ function listEcodes(type){
 	}
 }
 
-ECodeSchema.methods.getOprionalEcodes = listEcodes('optional')
-ECodeSchema.methods.getRequiredEcodes = listEcodes('recommended')
+ECodeSchema.methods.getOprionalEcodes = listAccessories('optional')
+ECodeSchema.methods.getRequiredEcodes = listAccessories('recommended')
 
 
 
@@ -140,6 +174,9 @@ var ECode =
 module.exports = mongoose.model('Ecode', ECodeSchema)
 
 
+//
+// NOTE: If some ecodes are missing the error will contain a .ecodes 
+// 		field with a list of missing ecodes.
 // NOTE: this will return true iff all the ecodes exist only...
 // NOTE: if not all given ecodes present, this will return the list of 
 // 		missing ecodes.
@@ -168,8 +205,8 @@ ECode.checkECode = function(ecode, callback){
 
 					// everything's there...
 					} else {
-						callback && callback(null, ecode)
-						resolve(ecode)
+						callback && callback(null, true)
+						resolve()
 					}
 				})
 				// something broke...
