@@ -7,9 +7,9 @@ var ProductSchema = mongoose.Schema({
 	_id: String,
 	ecode: String,
 
-	sizeGlass: String,
-	glassManufacturer: String,
-	codeGlassManufacturer: String,
+	size: String,
+	manufacturer: String,
+	manufacturerCode: String,
 	scanCode: String,
 	USACode: String,
 	XYGCode: String,
@@ -26,6 +26,27 @@ ProductSchema.pre('save', function(next){
 
 
 var Product = mongoose.model('Product', ProductSchema)
+
+
+Product.getFieldValues = function(query){
+	return new Promise(function(resolve, reject){
+		Car.aggregate()
+			.match(query)
+			.group({
+				_id: null,
+				manufacturer: { $addToSet: '$manufacturer' },
+				size: { $addToSet: '$size' },
+			})
+			.exec()
+				.then(function(data){
+					resolve(data)	
+				})
+				.then(null, function(err){
+					reject(err)
+				})
+	})
+}
+
 
 
 

@@ -180,7 +180,7 @@ module.exports = mongoose.model('Ecode', ECodeSchema)
 // NOTE: this will return true iff all the ecodes exist only...
 // NOTE: if not all given ecodes present, this will return the list of 
 // 		missing ecodes.
-ECode.checkECode = function(ecode, callback){
+ECode.checkECode = function(ecode){
 	// normalize ecode
 	ecode = ecode.constructor != Array ? [ecode] : ecode
 
@@ -200,18 +200,15 @@ ECode.checkECode = function(ecode, callback){
 						var err = new Error('Missing ecodes: ' + ecode)
 						err.ecodes = ecodes
 
-						callback && callback(err, ecode)
 						reject(err)
 
 					// everything's there...
 					} else {
-						callback && callback(null, true)
 						resolve()
 					}
 				})
 				// something broke...
 				.then(null, function(err){
-					callback && callback(err)
 					reject(err)
 				})
 		})
@@ -222,6 +219,25 @@ ECode.checkECode = function(ecode, callback){
 ECode.partsFromString = function(ecode){
 }
 
+
+/* XXX do we need this???
+ECode.getFieldValues = function(query){
+	return new Promise(function(resolve, reject){
+		Car.aggregate()
+			.match(query)
+			.group({
+				_id: null,
+			})
+			.exec()
+				.then(function(data){
+					resolve(data)	
+				})
+				.then(null, function(err){
+					reject(err)
+				})
+	})
+}
+*/
 
 
 // vim:set ts=4 sw=4 nowrap :

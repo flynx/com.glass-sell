@@ -7,11 +7,11 @@ var CarSchema = mongoose.Schema({
 	manufacturer: String,
 	series: String,
 	model: String,
-	modelIdentificator: String,
+	modelID: String,
 	bodyNumber: String,
 	year: Array,
 	type: String,
-	typeCarBody: String,
+	bodyType: String,
 	doors: String,
 	region: String,
 
@@ -32,13 +32,42 @@ var Car =
 module.exports = mongoose.model('Car', CarSchema)
 
 
-// XXX this is preferable to the mapReduce version below...
-// XXX test...
-Car.getCompatibleECodesA = function(cars){
+Car.getFieldValues = function(query){
 	return new Promise(function(resolve, reject){
 		Car.aggregate()
-			// filter the cars...
-			.match(cars)
+			.match(query)
+			.group({
+				_id: null,
+				manufacturer: { $addToSet: '$manufacturer' },
+				series: { $addToSet: '$series' },
+				model: { $addToSet: '$model' },
+				modelID: { $addToSet: '$modelID' },
+				bodyNumber: { $addToSet: '$bodyNumber' },
+				// XXX
+				//year: Array,
+				type: { $addToSet: '$type' },
+				bodyType: { $addToSet: '$bodyType' },
+				doors: { $addToSet: '$doors' },
+				region: { $addToSet: '$region' },
+			})
+			.exec()
+				.then(function(data){
+					resolve(data)	
+				})
+				.then(null, function(err){
+					reject(err)
+				})
+	})
+}
+
+
+// XXX this is preferable to the mapReduce version below...
+// XXX test...
+Car.getCompatibleECodesA = function(query){
+	return new Promise(function(resolve, reject){
+		Car.aggregate()
+			// filter the query...
+			.match(query)
 
 			// collect all the ecode sets...
 			.group({
@@ -61,13 +90,13 @@ Car.getCompatibleECodesA = function(cars){
 
 
 // XXX test...
-Car.getCompatibleECodesMR = function(cars){
+Car.getCompatibleECodesMR = function(query){
 	var res = []
 
 	return new Promise(function(resolve, reject){
 		Car
 			.mapReduce({
-					query: cars,
+					query: query,
 
 					map: function(){ 
 						emit(this.ecodes, 1) 
