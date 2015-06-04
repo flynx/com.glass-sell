@@ -4,16 +4,13 @@ var ECode = require('./ecode')
 
 
 var ProductSchema = mongoose.Schema({
-	// manufacturer id...
+	// manufacturer catalogue id...
 	_id: String,
 	ecode: String,
 
-	size: String,
 	manufacturer: String,
-	manufacturerCode: String,
-	scanCode: String,
-	USACode: String,
-	XYGCode: String,
+
+	size: String,
 })
 
 ProductSchema.pre('save', function(next){
