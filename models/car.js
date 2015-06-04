@@ -10,14 +10,16 @@ var CarSchema = mongoose.Schema({
 	model: String,
 	modelID: String,
 	bodyNumber: String,
-	year: Array,
 	type: String,
 	bodyType: String,
 	doors: String,
 	region: String,
 
+	year: Array,
+
 	ecodes: Array,
 })
+
 
 CarSchema.pre('save', function(next){
 	var ecodes = this.ecodes || []
