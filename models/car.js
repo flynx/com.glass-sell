@@ -36,25 +36,27 @@ module.exports = mongoose.model('Car', CarSchema)
 // XXX test...
 Car.getCompatibleECodesA = function(cars){
 	return new Promise(function(resolve, reject){
-		Car
-			.aggregate()
-				// filter the cars...
-				.match(cars)
-				// collect all the ecode sets...
-				.group({
-					_id: null, 
-					ecodes: { $push: '$ecodes' }})
-				// intersect the ecode sets...
-				.project({ecodes: { $setIntersection: '$ecodes' }})
-				// get the result...
-				.exec()
-					.then(function(data){
-						resolve(data.ecodes)	
-					})
-					.then(null, function(err){
-						reject(err)
-					})
-	}
+		Car.aggregate()
+			// filter the cars...
+			.match(cars)
+
+			// collect all the ecode sets...
+			.group({
+				_id: null, 
+				ecodes: { $push: '$ecodes' }})
+
+			// intersect the ecode sets...
+			.project({ecodes: { $setIntersection: '$ecodes' }})
+
+			// get the result...
+			.exec()
+				.then(function(data){
+					resolve(data.ecodes)	
+				})
+				.then(null, function(err){
+					reject(err)
+				})
+	})
 }
 
 
