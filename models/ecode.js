@@ -171,7 +171,8 @@ ECodeSchema.methods.getRequiredEcodes = listAccessories('recommended')
 
 
 var ECode = 
-module.exports = mongoose.model('Ecode', ECodeSchema)
+module.exports = 
+	mongoose.model('Ecode', ECodeSchema)
 
 
 //

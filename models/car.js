@@ -1,3 +1,4 @@
+var util = require('./util')
 var mongoose = require('mongoose')
 var ECode = require('./ecode')
 
@@ -29,36 +30,28 @@ CarSchema.pre('save', function(next){
 
 
 var Car =
-module.exports = mongoose.model('Car', CarSchema)
+module.exports = 
+	mongoose.model('Car', CarSchema)
 
 
-Car.getFieldValues = function(query){
-	return new Promise(function(resolve, reject){
-		Car.aggregate()
-			.match(query)
-			.group({
-				_id: null,
-				manufacturer: { $addToSet: '$manufacturer' },
-				series: { $addToSet: '$series' },
-				model: { $addToSet: '$model' },
-				modelID: { $addToSet: '$modelID' },
-				bodyNumber: { $addToSet: '$bodyNumber' },
-				// XXX
-				//year: Array,
-				type: { $addToSet: '$type' },
-				bodyType: { $addToSet: '$bodyType' },
-				doors: { $addToSet: '$doors' },
-				region: { $addToSet: '$region' },
-			})
-			.exec()
-				.then(function(data){
-					resolve(data)	
-				})
-				.then(null, function(err){
-					reject(err)
-				})
+
+Car.getFieldValues = util.makeUniqueFieldLister(Car, 
+	[
+		'manufacturer',
+		'series',
+		'model',
+		'modelID',
+		'bodyNumber',
+		'type',
+		'bodyType',
+		'doors',
+		'region',
+	],
+	{
+		// XXX
+		//year: {}
 	})
-}
+
 
 
 // XXX this is preferable to the mapReduce version below...

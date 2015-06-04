@@ -1,3 +1,4 @@
+var util = require('./util')
 var mongoose = require('mongoose')
 var ECode = require('./ecode')
 
@@ -25,29 +26,18 @@ ProductSchema.pre('save', function(next){
 })
 
 
-var Product = mongoose.model('Product', ProductSchema)
+var Product = 
+module.exports = 
+	mongoose.model('Product', ProductSchema)
 
 
-Product.getFieldValues = function(query){
-	return new Promise(function(resolve, reject){
-		Car.aggregate()
-			.match(query)
-			.group({
-				_id: null,
-				manufacturer: { $addToSet: '$manufacturer' },
-				size: { $addToSet: '$size' },
-			})
-			.exec()
-				.then(function(data){
-					resolve(data)	
-				})
-				.then(null, function(err){
-					reject(err)
-				})
-	})
-}
 
-
+Product.getFieldValues = util.makeUniqueFieldLister(
+	Product, 
+	[
+		'manufacturer',
+		'size',
+	])
 
 
 // vim:set ts=4 sw=4 nowrap :
