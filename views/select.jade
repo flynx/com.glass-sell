@@ -1,0 +1,17 @@
+include lib
+
+extends layout
+
+block content
+	h1= title
+
+	//- query fields...
+
+	//- car table...
+	+JSONTable({}, data.cars)
+
+	//- ecode table...
+	+JSONTable({}, data.ecodes)
+
+
+//- vim:set ts=4 sw=4 :

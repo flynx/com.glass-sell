@@ -4,6 +4,17 @@ var Promise = require('promise')
 
 // XXX nedd a two directional translation from string ecode to ecode parts...
 
+
+
+// XXX move this to a more logical spot...
+var Manufacturer = mongoose.Schema({
+	mid: String,
+	// manufacturer part of ecode...
+	ecode: String,
+	titme: String, 
+})
+
+
 var ECodeSchema = mongoose.Schema({
 	// the full eurocode...
 	_id: String,
@@ -67,7 +78,10 @@ var ECodeSchema = mongoose.Schema({
 
 	// dict of manufacturer specific codes...
 	// Format:
-	// 	<manufacturer>: <code>
+	// 	<manufacturer-name>: <code>
+	//
+	// NOTE: it could be the case that several makes (Audi, VW) name the
+	// 		same item differently in their catalogues...
 	carMakerCode: {
 	},
 })
