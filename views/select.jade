@@ -1,45 +1,6 @@
 include lib
 
 
-//- 
-	name can be in the following formats:
-		- 'name'			- used for both the label and name fields
-		- 'label | name'
-		- ['label', 'name']
-		- 'label | placeholder | name'
-		- ['label', 'placeholder', 'name']
-	XXX is this name syntax an overkill???
-
-//- XXX add field labels...
-mixin field(name, datalist)
-	//- parse the name...
-	- name = name.constructor == Array ? name : name.split('|')
-
-	- if(name.length == 1){
-	-	var text = name[0]
-	-	var placeholder = text
-	-	name = text
-	- } else if(name.length == 2) {
-	-	var text = name[0].trim()
-	-	var placeholder = text
-	-	name = name[1].trim()
-	- } else {
-	-	var text = name[0].trim()
-	-	var placeholder = name[1].trim()
-	-	name = name[2].trim()
-	- }
-
-	label= text
-		input(name=name, list=name, placeholder=placeholder)
-		datalist(id=name)
-			each e in datalist
-				option(value=e)
-
-mixin fields(data)
-	each list, name in data
-		+field(name, list)
-
-
 
 extends layout
 
