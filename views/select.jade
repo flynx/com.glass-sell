@@ -1,17 +1,29 @@
 include lib
 
+
+mixin field(name, datalist)
+	input(name=name, list=name)
+	datalist(id=name)
+		each e in datalist
+			option(value=e)
+
+
+
 extends layout
 
 block content
 	h1= title
 
-	//- query fields...
+	//- query fields + their datalists...
+	+field('test', ['a', 'b', 'c', 'd'])
 
 	//- car table...
-	+JSONTable({}, data.cars)
+	//- +JSONTable({}, data.cars)
 
 	//- ecode table...
-	+JSONTable({}, data.ecodes)
+	//- +JSONTable({}, data.ecodes)
+
+
 
 
 //- vim:set ts=4 sw=4 :
