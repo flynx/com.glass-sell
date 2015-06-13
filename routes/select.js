@@ -37,8 +37,28 @@ router.get('/',
 	function(req, res, next) {
 		// XXX get the base query data...
 		// XXX
+		
+		// XXX account for query...
+		Car.getFieldValues()
+			.then(function(data){
+					console.log('DATA:', data)
 
-		res.render('select', { title: 'Select' })
+					// format fields for form...
+					var fields = {}
+					for(var k in data){
+						fields['|'+k+'|'+k] = data[k]
+					}
+
+					res.render('select', { 
+						title: 'Select',
+						fields: fields,
+					})
+				},
+				function(err){
+					console.log('ERR:', err)
+				})
+
+
 	})
 
 

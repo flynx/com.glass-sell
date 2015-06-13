@@ -2,6 +2,12 @@ var util = require('./util')
 var mongoose = require('mongoose')
 var ECode = require('./ecode')
 
+// XXX HACK...
+var fs = require('fs') 
+var csv = require('csv')
+var csv2json = require('../util/misc').csv2json
+
+
 
 var CarSchema = mongoose.Schema({
 	// use the hash of all of these fields as _id... (???)
@@ -117,6 +123,38 @@ Car.getCompatibleECodesMR = function(query){
 				})
 	})
 }
+
+
+// XXX HACK
+Car.loadCSV = function(data, callback){
+	csv.parse(data, {
+			delimiter: ';',
+		}, 
+		function(err, data){
+			if(err){
+				return callback(err)
+			}
+
+			var res = csv2json(data)
+				.map(function(data){
+					return data.car
+				})
+
+			// populate...
+			Car.collection.insert(res, function(err, data){
+				callback(err, data)
+			})
+		})
+}
+
+
+/*
+// XXX HACK
+Car.loadCSV(fs.readFileSync('data/ecode-data.csv', {encoding: 'utf-8'}), 
+		function(e, d){
+			console.log('###', e, d)
+		})
+*/
 
 
 // vim:set ts=4 sw=4 nowrap :

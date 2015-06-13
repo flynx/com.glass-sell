@@ -1,4 +1,5 @@
 
+var Promise = require('promise')
 
 
 var makeUniqueFieldLister =
@@ -16,11 +17,13 @@ exports.makeUniqueFieldLister = function(obj, fields, group){
 	return function(query){
 		return new Promise(function(resolve, reject){
 			obj.aggregate()
-				.match(query)
+				.match(query || {})
 				.group(group)
 				.exec()
 					.then(function(data){
-						resolve(data)	
+						delete data[0]._id
+						// XXX should this be transformed to something????
+						resolve(data[0])	
 					})
 					.then(null, function(err){
 						reject(err)

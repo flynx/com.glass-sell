@@ -3,16 +3,23 @@
 
 //- 
 	Generate a field...
+	-------------------------------------------------------------------
 
-	name can be in the following formats:
+	Usage:
+		+field(<name>[, <datalist>])
+
+	<name> can be in the following formats:
 		- 'name'			- used for both the label and name fields
 		- 'label | name'
-		- ['label', 'name']
 		- 'label | placeholder | name'
+
+		- ['name']
+		- ['label', 'name']
 		- ['label', 'placeholder', 'name']
 	XXX is this name syntax an overkill???
 
-//- XXX add field labels...
+	<datalist> is a list of options.
+
 mixin field(name, datalist)
 	//- parse the name...
 	- name = name.constructor == Array ? name : name.split('|')
@@ -33,10 +40,32 @@ mixin field(name, datalist)
 
 	label= text
 		input(name=name, list=name, placeholder=placeholder)
-		datalist(id=name)
-			each e in datalist
-				option(value=e)
+		if datalist
+			datalist(id=name)
+				each e in datalist
+					option(value=e)
 
+
+
+//-
+	Generate a set of fields...
+	-------------------------------------------------------------------
+
+	Usage:
+		+fields(<data>)
+
+	<data> format:
+		[
+			<field-spec>,
+			...
+		]
+
+	<field-spec> format:
+		{
+			<name>: <datalist>
+		}
+
+	for specification of <name> and <datalist> see the +field(..) mixin
 
 mixin fields(data)
 	each list, name in data
@@ -45,6 +74,9 @@ mixin fields(data)
 
 
 //-
+	Generate a table...
+	-------------------------------------------------------------------
+
 	Usage:
 		+JSONTable([<css-class>,][ <col-names>,] <data>)
 			[<block>]

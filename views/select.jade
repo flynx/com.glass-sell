@@ -1,19 +1,21 @@
 include lib
 
-
-
 extends layout
 
 block content
 	h1= title
 
 	//- query fields + their datalists...
-	+fields({
-			test: ['a', 'b', 'c', 'd'], 
-			'Test field | test2': [1, 2, 3],
-			'Test field | Value | test2': [1, 2, 3],
-			'| Value without label | test2': [1, 2, 3],
-		})
+	//-
+		form
+			+fields({
+					test: ['a', 'b', 'c', 'd'], 
+					'Test field | test2': [1, 2, 3],
+					'Test field | Value | test2': [1, 2, 3],
+					'| Value without label | test2': [1, 2, 3],
+				})
+	form
+		+fields(fields)
 
 	//- car table...
 	//- +JSONTable({}, data.cars)
