@@ -32,7 +32,27 @@ var Product = require('../models/product')
 // 					.recommended
 // 					.optional
 
-// /
+// XXX might be a good idea to write a generic data getter to be used 
+// 		both here and in /json...
+// 			getData(query) -> data
+// 				where data format is:
+// 					{
+// 						fields: { ... },
+// 						cars: [ ... ],
+// 						ecodes: [ ... ],
+// 					}
+// 		...this should be a promise...
+// XXX can this be done in a single db-request on the mongo side???
+// 		query 
+// 			-> fields
+// 			-> cars
+// 				-> ecodes (intersect)
+// 					-> ecode data
+// 		...in the current state this is three requests:
+// 			- fields(query)
+// 			- cars(query)
+// 			- ecode data(ecodes)
+
 router.get('/', 
 	function(req, res, next) {
 		// get the base query data...
