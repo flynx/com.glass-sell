@@ -35,11 +35,11 @@ var Product = require('../models/product')
 // /
 router.get('/', 
 	function(req, res, next) {
-		// XXX get the base query data...
-		// XXX
+		// get the base query data...
+		// XXX do we need to quote the query???
+		var query = req.query
 		
-		// XXX account for query...
-		Car.getFieldValues()
+		Car.getFieldValues(query)
 			.then(function(data){
 					console.log('DATA:', data)
 
@@ -51,7 +51,10 @@ router.get('/',
 
 					res.render('select', { 
 						title: 'Select',
+
 						fields: fields,
+						// XXX cars
+						// XXX ecodes
 					})
 				},
 				function(err){
@@ -62,9 +65,28 @@ router.get('/',
 	})
 
 
-router.get('/query', 
+router.get('/json', 
 	function(req, res, next) {
-		res.render('index', { title: 'Select' })
+		// get the query...
+		// XXX do we need to quote the query???
+		var query = req.query
+	
+		Car.getFieldValues(query)
+			.then(function(fields){
+					console.log('DATA:', fields)
+
+					res.json({
+						fields: fields,
+						// XXX cars
+						// XXX ecodes
+					})
+				},
+				function(err){
+					console.log('ERR:', err)
+
+					// XXX format error???
+					res.json({})
+				})
 	})
 
 
