@@ -14,8 +14,11 @@ block content
 					'Test field | Value | test2': [1, 2, 3],
 					'| Value without label | test2': [1, 2, 3],
 				})
-	form
+	form(action='/select', method='get')
 		+fields(fields)
+
+		input(type='submit' value='update')
+		//- XXX need a way to clear the form...
 
 	//- car table...
 	//- +JSONTable({}, data.cars)

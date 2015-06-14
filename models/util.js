@@ -19,15 +19,15 @@ exports.makeUniqueFieldLister = function(obj, fields, group){
 			obj.aggregate()
 				.match(query || {})
 				.group(group)
-				.exec()
-					.then(function(data){
-						delete data[0]._id
-						// XXX should this be transformed to something????
-						resolve(data[0])	
-					})
-					.then(null, function(err){
-						reject(err)
-					})
+					.exec()
+						.then(function(data){
+							delete data[0]._id
+							// XXX should this be transformed to something????
+							resolve(data[0])	
+						})
+						.then(null, function(err){
+							reject(err)
+						})
 		})
 	}
 }

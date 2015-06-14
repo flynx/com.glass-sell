@@ -20,7 +20,7 @@
 
 	<datalist> is a list of options.
 
-mixin field(name, datalist)
+mixin field(name, datalist, value)
 	//- parse the name...
 	- name = name.constructor == Array ? name : name.split('|')
 
@@ -38,8 +38,13 @@ mixin field(name, datalist)
 	-	name = name[2].trim()
 	- }
 
+	- value = value || (datalist.length == 1 ? datalist[0] : null)
+
 	label= text
-		input(name=name, list=name, placeholder=placeholder)
+		if value
+			input(name=name, list=name, placeholder=placeholder, title=placeholder, value=value)
+		else
+			input(name=name, list=name, placeholder=placeholder, title=placeholder)
 		if datalist
 			datalist(id=name)
 				each e in datalist

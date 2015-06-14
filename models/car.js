@@ -58,6 +58,8 @@ Car.getFieldValues = util.makeUniqueFieldLister(Car,
 	{
 		// XXX
 		//year: {}
+
+		//cars: { $addToSet: '$$ROOT'  },
 	})
 
 

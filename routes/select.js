@@ -32,6 +32,7 @@ var Product = require('../models/product')
 // 					.recommended
 // 					.optional
 
+
 // XXX might be a good idea to write a generic data getter to be used 
 // 		both here and in /json...
 // 			getData(query) -> data
@@ -53,11 +54,20 @@ var Product = require('../models/product')
 // 			- cars(query)
 // 			- ecode data(ecodes)
 
+
 router.get('/', 
 	function(req, res, next) {
 		// get the base query data...
 		// XXX do we need to quote the query???
 		var query = req.query
+
+		// remove empty values...
+		// XXX is this needed???
+		for(var k in query){
+			if(query[k] == ''){
+				delete query[k]
+			}
+		}
 		
 		Car.getFieldValues(query)
 			.then(function(data){
@@ -90,7 +100,7 @@ router.get('/json',
 		// get the query...
 		// XXX do we need to quote the query???
 		var query = req.query
-	
+
 		Car.getFieldValues(query)
 			.then(function(fields){
 					console.log('DATA:', fields)
