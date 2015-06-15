@@ -3,26 +3,54 @@ include lib
 extends layout
 
 block content
+
+	script.
+		$(function(){
+			$('.selectForm .fields :input').on('input', function(){
+				var data = $('datalist#'+this.name+' option')
+					.map(function(_, e){ return e.value })
+					.toArray()
+
+				if(data.indexOf(this.value) >= 0){
+					$(this).parents('.selectForm').first().submit()
+				}
+			})
+
+			$('.selectForm')
+				// XXX for some magical reason this does not work if the
+				//		handler is set after .submit(..)
+				.on('clear', function(){
+					console.log('!!!')
+					$(this).find('.fields :input').val('')
+				})
+				.submit(function(){
+					$(this).find('.fields :input').each(function(){
+						this.disabled = !($(this).val())
+					})
+			})
+		})
+
 	h1= title
 
 	//- selector...
 	div
 		form.selectForm(action='/select', method='get')
 
-			div
+			div.fields
+				h3 Select car
 				+fields(fields, query)
 
 
 			//- ecode selector...
-			div
+			div.fields
+				h3 Select glass
 				//- XXX
 
 
 			div
-				input(type='submit' value='update')
+				button update
 
-				//- XXX need a way to clear the from...
-				input(type='button' value='clear')
+				button(onclick="$(this).parents('.selectForm').trigger('clear')") clear
 
 
 
@@ -47,7 +75,7 @@ block content
 
 
 	//- ecode table...
-	if ecodes.length > 0
+	if ecodes && ecodes.length > 0
 		div
 			h2 Euro Codes
 			+JSONTable({

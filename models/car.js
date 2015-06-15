@@ -1,3 +1,5 @@
+var Promise = require('promise')
+
 var util = require('./util')
 var mongoose = require('mongoose')
 var ECode = require('./ecode')
@@ -83,7 +85,7 @@ Car.getCompatibleECodesA = function(query){
 			// get the result...
 			.exec()
 				.then(function(data){
-					resolve(data.ecodes)	
+					resolve(data[0].ecodes)	
 				})
 				.then(null, function(err){
 					reject(err)

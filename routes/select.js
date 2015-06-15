@@ -70,10 +70,12 @@ function getData(query){
 					.sort({manufacturer: 1})
 					.limit(20)
 					.exec(),
-				// XXX ecodes...
-				[],
+				// ecodes...
+				// XXX for some reason this returns undefined...
+				Car.getCompatibleECodesA(query),
 			])
 			.then(function(data){
+					console.log(data[2])
 					resolve({
 						fields: data[0],
 						cars: data[1],
