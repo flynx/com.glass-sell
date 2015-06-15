@@ -38,7 +38,7 @@ mixin field(name, datalist, value)
 	-	name = name[2].trim()
 	- }
 
-	- value = value || (datalist.length == 1 ? datalist[0] : null)
+	- value = value === undefined ? (datalist.length == 1 ? datalist[0] : null) : value
 
 	label= text
 		if value
@@ -57,13 +57,19 @@ mixin field(name, datalist, value)
 	-------------------------------------------------------------------
 
 	Usage:
-		+fields(<data>)
+		+fields(<data>, <values>)
 
 	<data> format:
 		[
 			<field-spec>,
 			...
 		]
+
+	<values> format:
+		{
+			<name>: <value>,
+			...
+		}
 
 	<field-spec> format:
 		{
@@ -72,9 +78,15 @@ mixin field(name, datalist, value)
 
 	for specification of <name> and <datalist> see the +field(..) mixin
 
-mixin fields(data)
+	NOTE: if values is given then no default value processing will be 
+		done by the field(..) mixin...
+
+mixin fields(data, values)
 	each list, name in data
-		+field(name, list)
+		if values
+			+field(name, list, values[name.split('|').pop()] || false)
+		else
+			+field(name, list)
 
 
 

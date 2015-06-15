@@ -1,3 +1,5 @@
+var Promise = require('promise')
+
 var express = require('express')
 var router = express.Router()
 
@@ -55,6 +57,37 @@ var Product = require('../models/product')
 // 			- ecode data(ecodes)
 
 
+function getData(query){
+	return new Promise(function(resolve, reject){
+		Promise.all([
+				Car.getFieldValues(query),
+				// XXX this is partially redundant...
+				// 		...would be good to find a way to do this within 
+				// 		the previous query...
+				Car
+					.find(query)
+					// XXX make this customizable...
+					.sort({manufacturer: 1})
+					.limit(20)
+					.exec(),
+				// XXX ecodes...
+				[],
+			])
+			.then(function(data){
+					resolve({
+						fields: data[0],
+						cars: data[1],
+						ecodes: data[2],
+					})
+
+				})
+			.catch(function(err){
+					reject(err)
+				})
+	})
+}
+
+
 router.get('/', 
 	function(req, res, next) {
 		// get the base query data...
@@ -68,28 +101,32 @@ router.get('/',
 				delete query[k]
 			}
 		}
-		
-		Car.getFieldValues(query)
+
+		getData(query)
 			.then(function(data){
-					console.log('DATA:', data)
+				console.log('DATA:', data)
 
-					// format fields for form...
-					var fields = {}
-					for(var k in data){
-						fields['|'+k+'|'+k] = data[k]
-					}
+				// format fields for form...
+				var fields = {}
+				for(var k in data.fields){
+					fields['|'+k+'|'+k] = data.fields[k]
+				}
 
-					res.render('select', { 
-						title: 'Select',
+				res.render('select', { 
+					title: 'Select',
 
-						fields: fields,
-						// XXX cars
-						// XXX ecodes
-					})
-				},
-				function(err){
-					console.log('ERR:', err)
+					query: query,
+
+					fields: fields,
+					cars: data.cars,
+					ecodes: data.ecodes,
 				})
+			})
+			.catch(function(err){
+				console.log('ERR:', err)
+				// XXX render error...
+			})
+
 
 
 	})
@@ -101,17 +138,13 @@ router.get('/json',
 		// XXX do we need to quote the query???
 		var query = req.query
 
-		Car.getFieldValues(query)
-			.then(function(fields){
-					console.log('DATA:', fields)
+		getData(query)
+			.then(function(data){
+					console.log('DATA:', data)
 
-					res.json({
-						fields: fields,
-						// XXX cars
-						// XXX ecodes
-					})
-				},
-				function(err){
+					res.json(data)
+				})
+			.catch(function(err){
 					console.log('ERR:', err)
 
 					// XXX format error???

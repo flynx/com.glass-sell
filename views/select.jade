@@ -5,26 +5,58 @@ extends layout
 block content
 	h1= title
 
-	//- query fields + their datalists...
-	//-
-		form
-			+fields({
-					test: ['a', 'b', 'c', 'd'], 
-					'Test field | test2': [1, 2, 3],
-					'Test field | Value | test2': [1, 2, 3],
-					'| Value without label | test2': [1, 2, 3],
-				})
-	form(action='/select', method='get')
-		+fields(fields)
+	//- selector...
+	div
+		form.selectForm(action='/select', method='get')
 
-		input(type='submit' value='update')
-		//- XXX need a way to clear the form...
+			div
+				+fields(fields, query)
+
+
+			//- ecode selector...
+			div
+				//- XXX
+
+
+			div
+				input(type='submit' value='update')
+
+				//- XXX need a way to clear the from...
+				input(type='button' value='clear')
+
+
+
 
 	//- car table...
-	//- +JSONTable({}, data.cars)
+	div
+		h2 Cars
+		+JSONTable({
+				Manufacturer: 'manufacturer', 
+				Series: 'series', 
+				Model: 'model', 
+				'Model ID': 'modelID', 
+				'Body Number': 'bodyNumber', 
+				Type: 'type', 
+				'Body Type': 'bodyType', 
+				Doors: 'doors', 
+				Region: 'region', 
+				Actions: function(elem){ 
+					return '<a href="#">select</a>' 
+				},
+			}, cars)
+
 
 	//- ecode table...
-	//- +JSONTable({}, data.ecodes)
+	if ecodes.length > 0
+		div
+			h2 Euro Codes
+			+JSONTable({
+					'Euro Code': '_id',
+					Actions: function(elem){ 
+						return '<span/>' 
+					},
+				}, ecodes)
+
 
 
 
