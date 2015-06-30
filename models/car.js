@@ -130,14 +130,13 @@ Car.getCompatibleECodesMR = function(query){
 					if(err){
 						reject(err)
 
+					} else if(data.length == 0){
+						resolve([])
+
 					} else {
 						var res = data[0].value
 
-						if(res.constructor == Array){
-							resolve(res)
-						} else {
-							resolve(res.ecodes)
-						}
+						resolve(res.ecodes)
 					}
 				})
 	})

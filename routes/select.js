@@ -59,6 +59,15 @@ var Product = require('../models/product')
 
 function getData(query, sort, limit, offset){
 	return new Promise(function(resolve, reject){
+		var limit = query.limit || 20
+		delete query.limit
+
+		var offset = query.offset*limit || 0
+		delete query.offset
+
+		var sort = query.sort || 'manufacturer'
+		delete query.sort
+
 		Promise.all([
 				Car.getFieldValues(query),
 				// XXX this is partially redundant...
@@ -68,18 +77,26 @@ function getData(query, sort, limit, offset){
 					.find(query)
 					// XXX make this customizable...
 					.sort({manufacturer: 1})
-					// XXX make this + offset configurable....
-					.limit(20)
+					.skip(offset)
+					.limit(limit)
 					.exec(),
 				// ecodes...
-				// XXX for some reason this returns undefined...
-				//Car.getCompatibleECodesA(query),
 				Car.getCompatibleECodesMR(query),
+				// count...
+				// XXX is there a way to avoid a separate query???
+				Car
+					.find(query)
+					.count()
+					.exec(),
 			])
 			.then(function(data){
-					//console.log(data[2])
 					resolve({
 						query: query,
+
+						limit: limit,
+						// offset is in pages...
+						offset: offset/limit,
+						count: data[3],
 
 						fields: data[0],
 						cars: data[1],
@@ -123,6 +140,10 @@ router.get('/',
 					title: 'Select',
 
 					query: query,
+
+					limit: data.limit,
+					offset: data.offset,
+					count: data.count,
 
 					fields: fields,
 					cars: data.cars,

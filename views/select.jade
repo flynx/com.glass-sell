@@ -5,6 +5,49 @@ extends layout
 block content
 
 	script.
+
+		var count = #{count}
+
+		function firstCarPage(){
+			var form = $('.selectForm')
+			var limit = parseInt(form.find('input[name="limit"]').val())
+			var offset = form.find('input[name="offset"]')
+
+			offset.val(0)
+
+			form.submit()
+		}
+
+		function prevCarPage(){
+			var form = $('.selectForm')
+			var limit = parseInt(form.find('input[name="limit"]').val())
+			var offset = form.find('input[name="offset"]')
+
+			offset.val(Math.max(parseInt(offset.val()) - 1, 0))
+
+			form.submit()
+		}
+
+		function nextCarPage(){
+			var form = $('.selectForm')
+			var limit = parseInt(form.find('input[name="limit"]').val())
+			var offset = form.find('input[name="offset"]')
+
+			offset.val(Math.min(parseInt(offset.val()) + 1, Math.ceil(count/limit)-1))
+
+			form.submit()
+		}
+
+		function lastCarPage(){
+			var form = $('.selectForm')
+			var limit = parseInt(form.find('input[name="limit"]').val())
+			var offset = form.find('input[name="offset"]')
+
+			offset.val(Math.floor(count/limit))
+
+			form.submit()
+		}
+
 		$(function(){
 			$('.selectForm .fields :input').on('input', function(){
 				var data = $('datalist#'+this.name+' option')
@@ -12,7 +55,12 @@ block content
 					.toArray()
 
 				if(data.indexOf(this.value) >= 0){
-					$(this).parents('.selectForm').first().submit()
+					var form = $(this).parents('.selectForm')
+					// clear the offset...
+					if($(this).attr('name') != 'offset'){
+						form.find('input[name="offset"]').val(0)
+					}
+					form.first().submit()
 				}
 			})
 
@@ -20,8 +68,8 @@ block content
 				// XXX for some magical reason this does not work if the
 				//		handler is set after .submit(..)
 				.on('clear', function(){
-					console.log('!!!')
-					$(this).find('.fields :input').val('')
+					$(this).find('.fields :input:not([name="limit"])').val('')
+					$(this).find('.fields :input[name="offset"])').val(0)
 				})
 				.submit(function(){
 					$(this).find('.fields :input').each(function(){
@@ -47,10 +95,37 @@ block content
 				//- XXX
 
 
-			div
+			div.pager
+				button(type='button' onclick="firstCarPage()") &lt;&lt;
+				button(type='button' onclick="prevCarPage()") &lt;
+
+				span.fields
+					label Show:
+						input(name='limit' list='limit' size='3' value=limit)
+						datalist(id='limit')
+							option(value=10) 10
+							option(value=20) 20
+							option(value=50) 50
+							option(value=100) 100
+
+					//- XXX make this a page...
+					label Page:
+						input(name='offset' list='offset' size='3' value=offset)
+						datalist(id='offset')
+							-for(var p=0; p < count/limit; p++)
+								option(value=p)
+
+					span Total: #{count}
+
+				button(type='button' onclick="nextCarPage()") &gt;
+				button(type='button' onclick="lastCarPage()") &gt;&gt;
+
+
+			div.actions
 				button update
 
-				button(onclick="$(this).parents('.selectForm').trigger('clear')") clear
+				button(type='button' onclick="$(this).parents('.selectForm').trigger('clear')") clear
+
 
 
 
@@ -71,7 +146,7 @@ block content
 				Actions: function(elem){ 
 					return '<a href="#">select</a>' 
 				},
-				'__ECODES__': 'ecodes', 
+				//'__ECODES__': 'ecodes', 
 			}, cars)
 
 
@@ -82,7 +157,7 @@ block content
 			+JSONTable({
 					'Euro Code': '_id',
 					Actions: function(elem){ 
-						return '<span/>' 
+						return '<a href="#">select</a>' 
 					},
 				}, ecodes)
 
