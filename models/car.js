@@ -44,19 +44,20 @@ module.exports =
 	mongoose.model('Car', CarSchema)
 
 
+var FIELDS = [
+	'manufacturer',
+	'series',
+	'model',
+	'modelID',
+	'bodyNumber',
+	'type',
+	'bodyType',
+	'doors',
+	'region',
+]
 
 Car.getFieldValues = util.makeUniqueFieldLister(Car, 
-	[
-		'manufacturer',
-		'series',
-		'model',
-		'modelID',
-		'bodyNumber',
-		'type',
-		'bodyType',
-		'doors',
-		'region',
-	],
+	FIELDS,
 	{
 		// XXX
 		//year: {}
@@ -68,6 +69,7 @@ Car.getFieldValues = util.makeUniqueFieldLister(Car,
 
 // XXX this is preferable to the mapReduce version below...
 // XXX test...
+// XXX does not yet work...
 Car.getCompatibleECodesA = function(query){
 	return new Promise(function(resolve, reject){
 		Car.aggregate()
@@ -80,11 +82,13 @@ Car.getCompatibleECodesA = function(query){
 				ecodes: { $push: '$ecodes' }})
 
 			// intersect the ecode sets...
+			// XXX can't find a way for this to work across multiple docs...
 			.project({ecodes: { $setIntersection: '$ecodes' }})
 
 			// get the result...
 			.exec()
 				.then(function(data){
+					//console.log('>>>>', data[0].ecodes)
 					resolve(data[0].ecodes)	
 				})
 				.then(null, function(err){
@@ -94,7 +98,6 @@ Car.getCompatibleECodesA = function(query){
 }
 
 
-// XXX test...
 Car.getCompatibleECodesMR = function(query){
 	var res = []
 
@@ -104,32 +107,59 @@ Car.getCompatibleECodesMR = function(query){
 					query: query,
 
 					map: function(){ 
-						emit(this.ecodes, 1) 
+						emit('commonEcodes', {ecodes: this.ecodes}) 
 					},
 					reduce: function(k, vals){ 
-						var res = vals.splice(0, 1)
+						var res = vals.shift().ecodes
 
 						for(var i=0; i < vals.length; i++){
+							// at least one empty set drops all elems...
 							if(res.length == 0){
-								return res
+								return { ecodes: [] }
 							}
-							var cur = vals[i]
+							var cur = vals[i].ecodes
 							res = res.filter(function(e){
 								return cur.indexOf(e) >= 0
 							})
 						}
 
-						return res
+						return { ecodes: res }
 					},
 				},
 				function(err, data){
-					resolve(data)
+					if(err){
+						reject(err)
+
+					} else {
+						var res = data[0].value
+
+						if(res.constructor == Array){
+							resolve(res)
+						} else {
+							resolve(res.ecodes)
+						}
+					}
 				})
 	})
 }
 
 
+Car.makeID = function(car){
+	var o = {}
+	FIELDS.forEach(function(n){ 
+		if(n == 'ecodes'){
+			return
+		}
+		if(n in car){
+			o[n] = car[n]
+		}
+	})
+	return JSON.stringify(o)
+}
+
+
 // XXX HACK
+// XXX handle '*' fields...
 Car.loadCSV = function(data, callback){
 	csv.parse(data, {
 			delimiter: ';',
@@ -139,10 +169,26 @@ Car.loadCSV = function(data, callback){
 				return callback(err)
 			}
 
-			var res = csv2json(data)
-				.map(function(data){
-					return data.car
+			var res = {}
+			csv2json(data)
+				.forEach(function(data){
+					var car = data.car
+
+					var id = car._id = Car.makeID(car)
+
+					var ecode = data.idECode
+					//console.log('>>>>', ecode)
+
+					if(!(id in res)){
+						res[id] = car
+						res[id].ecodes = [ecode]
+
+					} else if(res[id].ecodes.indexOf(ecode) < 0){
+						res[id].ecodes.push(ecode)
+					}
 				})
+
+			res = Object.keys(res).map(function(k){ return res[k] })
 
 			// populate...
 			Car.collection.insert(res, function(err, data){

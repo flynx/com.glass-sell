@@ -57,7 +57,7 @@ var Product = require('../models/product')
 // 			- ecode data(ecodes)
 
 
-function getData(query){
+function getData(query, sort, limit, offset){
 	return new Promise(function(resolve, reject){
 		Promise.all([
 				Car.getFieldValues(query),
@@ -68,18 +68,23 @@ function getData(query){
 					.find(query)
 					// XXX make this customizable...
 					.sort({manufacturer: 1})
+					// XXX make this + offset configurable....
 					.limit(20)
 					.exec(),
 				// ecodes...
 				// XXX for some reason this returns undefined...
-				Car.getCompatibleECodesA(query),
+				//Car.getCompatibleECodesA(query),
+				Car.getCompatibleECodesMR(query),
 			])
 			.then(function(data){
-					console.log(data[2])
+					//console.log(data[2])
 					resolve({
+						query: query,
+
 						fields: data[0],
 						cars: data[1],
-						ecodes: data[2],
+						// XXX need to populate ecodes...
+						ecodes: data[2].map(function(e){ return {_id: e} }),
 					})
 
 				})
