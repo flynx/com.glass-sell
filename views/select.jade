@@ -84,14 +84,14 @@ block content
 	div
 		form.selectForm(action='/select', method='get')
 
-			div.fields
-				h3 Select car
+			span.fields
+				h3 Car
 				+fields(fields, query)
 
 
 			//- ecode selector...
 			div.fields
-				h3 Select glass
+				h3 Glass
 				//- XXX
 
 
@@ -103,10 +103,10 @@ block content
 					label Show:
 						input(name='limit' list='limit' size='3' value=limit)
 						datalist(id='limit')
-							option(value=10) 10
-							option(value=20) 20
-							option(value=50) 50
-							option(value=100) 100
+							option(value=10)
+							option(value=20)
+							option(value=50)
+							option(value=100)
 
 					//- XXX make this a page...
 					label Page:
@@ -123,43 +123,38 @@ block content
 
 			div.actions
 				button update
-
 				button(onclick="$(this).parents('.selectForm').trigger('clear')") clear
 
 
+			//- car table...
+			div
+				+JSONTable({
+						Manufacturer: 'manufacturer', 
+						Series: 'series', 
+						Model: 'model', 
+						'Model ID': 'modelID', 
+						'Body Number': 'bodyNumber', 
+						Type: 'type', 
+						'Body Type': 'bodyType', 
+						Doors: 'doors', 
+						Region: 'region', 
+						Actions: function(elem){ 
+							return '<a href="#">select</a>' 
+						},
+						//'__ECODES__': 'ecodes', 
+					}, cars)
 
 
-
-	//- car table...
-	div
-		h2 Cars
-		+JSONTable({
-				Manufacturer: 'manufacturer', 
-				Series: 'series', 
-				Model: 'model', 
-				'Model ID': 'modelID', 
-				'Body Number': 'bodyNumber', 
-				Type: 'type', 
-				'Body Type': 'bodyType', 
-				Doors: 'doors', 
-				Region: 'region', 
-				Actions: function(elem){ 
-					return '<a href="#">select</a>' 
-				},
-				//'__ECODES__': 'ecodes', 
-			}, cars)
-
-
-	//- ecode table...
-	if ecodes && ecodes.length > 0
-		div
-			h2 Euro Codes
-			+JSONTable({
-					'Euro Code': '_id',
-					Actions: function(elem){ 
-						return '<a href="#">select</a>' 
-					},
-				}, ecodes)
+			//- ecode table...
+			if ecodes && ecodes.length > 0
+				div
+					h2 Euro Codes
+					+JSONTable({
+							'Euro Code': '_id',
+							Actions: function(elem){ 
+								return '<a href="#">select</a>' 
+							},
+						}, ecodes)
 
 
 

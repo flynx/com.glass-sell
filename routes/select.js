@@ -65,7 +65,11 @@ function getData(query, sort, limit, offset){
 		var offset = query.offset*limit || 0
 		delete query.offset
 
-		var sort = query.sort || 'manufacturer'
+		// sort...
+		var sort = query.sort || ['manufacturer']
+		sort = typeof(sort) == typeof('str') 
+			? sort
+			: sort.join(' ')
 		delete query.sort
 
 		Promise.all([
@@ -75,8 +79,7 @@ function getData(query, sort, limit, offset){
 				// 		the previous query...
 				Car
 					.find(query)
-					// XXX make this customizable...
-					.sort({manufacturer: 1})
+					.sort(sort)
 					.skip(offset)
 					.limit(limit)
 					.exec(),
