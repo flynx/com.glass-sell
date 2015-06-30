@@ -147,7 +147,10 @@ mixin JSONTable(a, b, c)
 			thead
 				tr
 					-for(var col in cols)
-						th= col
+						-if(typeof(cols[col]) == typeof('str'))
+							th(name=cols[col])= col
+						-else
+							th= col
 
 					if block
 						th

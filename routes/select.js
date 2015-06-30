@@ -100,6 +100,7 @@ function getData(query, sort, limit, offset){
 						// offset is in pages...
 						offset: offset/limit,
 						count: data[3],
+						sort: sort,
 
 						fields: data[0],
 						cars: data[1],
@@ -147,6 +148,7 @@ router.get('/',
 					limit: data.limit,
 					offset: data.offset,
 					count: data.count,
+					sort: data.sort,
 
 					fields: fields,
 					cars: data.cars,

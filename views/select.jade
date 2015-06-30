@@ -7,6 +7,7 @@ block content
 	script.
 
 		var count = #{count}
+		var sort = '#{sort}'
 
 		function firstCarPage(){
 			var form = $('.selectForm')
@@ -76,13 +77,43 @@ block content
 						this.disabled = !($(this).val())
 					})
 			})
+
+
+			// sort cols...
+			$('th[name]')
+				.click(function(){
+					var elem = $(this)
+					var name = elem.attr('name')
+					var form = elem.parents('form.selectForm').first()
+
+					if(name != null){
+						var input = form.find('input[name="sort"]')
+						var cur = input.val()
+
+						input.val(name == cur ? '-'+name : name)
+
+						form.submit()
+					}
+				})
+
+			// setup sort classes...
+			sort.split(/\s+/).forEach(function(e){
+				var ascending = e[0] != '-'
+				var name = ascending ? e : e.slice(1)
+
+				$('th[name="'+name+'"]').addClass(ascending ? 'ascending' : 'descending')
+			})
+
 		})
 
 	h1= title
 
 	//- selector...
 	div
+		//- XXX add sort...
 		form.selectForm(action='/select', method='get')
+
+			input(type='hidden' name='sort' value=sort)
 
 			span.fields
 				h3 Car
