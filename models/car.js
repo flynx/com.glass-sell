@@ -110,8 +110,10 @@ Car.getCompatibleECodesMR = function(query, sort){
 						emit('commonEcodes', {ecodes: this.ecodes}) 
 					},
 					reduce: function(k, vals){ 
+						// get the first set...
 						var res = vals.shift().ecodes
 
+						// remove non=matching elements...
 						for(var i=0; i < vals.length; i++){
 							// at least one empty set drops all elems...
 							if(res.length == 0){
