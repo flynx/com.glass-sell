@@ -98,7 +98,7 @@ Car.getCompatibleECodesA = function(query){
 }
 
 
-Car.getCompatibleECodesMR = function(query){
+Car.getCompatibleECodesMR = function(query, sort){
 	var res = []
 
 	return new Promise(function(resolve, reject){
@@ -134,9 +134,34 @@ Car.getCompatibleECodesMR = function(query){
 						resolve([])
 
 					} else {
-						var res = data[0].value
+						var res = data[0].value.ecodes
 
-						resolve(res.ecodes)
+						// sort the ecode list...
+						// NOTE: this also support ecode objects...
+						if(sort != null){
+							var attrs = sort.split(/\s+/)
+							res.sort(function(a, b){
+								for(var i=0; i < attrs.length; i++){
+									var attr = attrs[i]
+									var ascending = attr[0] != '-'
+									attr = ascending ? attr : attr.slice(1)
+
+									a = typeof(a) == typeof('str') ? a : (a[attr] || -Infinity)
+									b = typeof(b) == typeof('str') ? b : (b[attr] || -Infinity)
+
+									if(a == b){
+										continue
+
+									} else {
+										ascending = ascending ? 1 : -1
+										return (a < b ? -1 : 1) * ascending
+									}
+								}
+								return 0
+							})
+						}
+
+						resolve(res)
 					}
 				})
 	})

@@ -66,11 +66,17 @@ function getData(query, sort, limit, offset){
 		delete query.offset
 
 		// sort...
-		var sort = query.sort || ['manufacturer']
-		sort = typeof(sort) == typeof('str') 
-			? sort
-			: sort.join(' ')
-		delete query.sort
+		var car_sort = query.car_sort || ['manufacturer']
+		car_sort = typeof(car_sort) == typeof('str') 
+			? car_sort
+			: car_sort.join(' ')
+		delete query.car_sort
+
+		var ecode_sort = query.ecode_sort || ['_id']
+		ecode_sort = typeof(ecode_sort) == typeof('str') 
+			? ecode_sort
+			: ecode_sort.join(' ')
+		delete query.ecode_sort
 
 		Promise.all([
 				Car.getFieldValues(query),
@@ -79,12 +85,12 @@ function getData(query, sort, limit, offset){
 				// 		the previous query...
 				Car
 					.find(query)
-					.sort(sort)
+					.sort(car_sort)
 					.skip(offset)
 					.limit(limit)
 					.exec(),
 				// ecodes...
-				Car.getCompatibleECodesMR(query),
+				Car.getCompatibleECodesMR(query, ecode_sort),
 				// count...
 				// XXX is there a way to avoid a separate query???
 				Car
@@ -100,7 +106,8 @@ function getData(query, sort, limit, offset){
 						// offset is in pages...
 						offset: offset/limit,
 						count: data[3],
-						sort: sort,
+						car_sort: car_sort,
+						ecode_sort: ecode_sort,
 
 						fields: data[0],
 						cars: data[1],
@@ -148,7 +155,8 @@ router.get('/',
 					limit: data.limit,
 					offset: data.offset,
 					count: data.count,
-					sort: data.sort,
+					car_sort: data.car_sort,
+					ecode_sort: data.ecode_sort,
 
 					fields: fields,
 					cars: data.cars,
