@@ -7,6 +7,9 @@ to install and run:
 		this will work with the default mongo install scheme, for
 		custom install we'll need to tweak the config (XXX)
 
+The server lives at: 
+	http://localhost:3000/
+	https://localhost:3010/
 
 http API:
 	POST /login username=.. password=..

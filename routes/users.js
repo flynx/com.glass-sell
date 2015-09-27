@@ -266,6 +266,7 @@ router.get('/list', restrictRole('root'), function(req, res, next) {
 
 		} else {
 			res.render('user-list', { 
+				user: req.user,
 				title: 'User list',
 				users: users,
 			})

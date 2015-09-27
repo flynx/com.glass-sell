@@ -5,6 +5,14 @@ html
 		link(rel='stylesheet', href='/css/style.css')
 		script(src='/js/jquery-1.11.3.min.js')
 	body
+		div.site-menu
+			if user
+				a(href="/") home
+				a(href="/select") select
+				a(href="/user/list") users
+				a(href="/user") profile
+				a(href="/logout") logout
+
 		block content
 
 //- vim:set ts=4 sw=4 :

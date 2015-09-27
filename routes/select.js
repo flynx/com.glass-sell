@@ -148,6 +148,7 @@ router.get('/',
 				}
 
 				res.render('select', { 
+					user: req.user,
 					title: 'Select',
 
 					query: query,
@@ -196,7 +197,10 @@ router.get('/json',
 
 router.get('/ecode', 
 	function(req, res, next) {
-		res.render('index', { title: 'Select' })
+		res.render('index', { 
+			user: req.user,
+			title: 'Select',
+		})
 	})
 
 

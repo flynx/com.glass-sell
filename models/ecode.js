@@ -248,6 +248,9 @@ ECode.checkECode = function(ecode){
 // 	{
 // 		// Section...
 // 		<section-name>: {
+// 			skip: <bool>,
+//
+//
 // 			// Metadata...
 //
 // 			// Section title...
@@ -274,7 +277,24 @@ ECode.checkECode = function(ecode){
 //
 // 			// Section reference, indicates the section name to used for
 // 			// parsing after this section is done...
-// 			next: <section-name>
+// 			//
+// 			// Setting this to 'root' will explicitly continue at the root
+// 			// section.
+// 			//
+// 			// Setting this to 'stop' will stop parsing when the current
+// 			// section is done.
+// 			//
+// 			// NOTE: this will search for the section name in the current
+// 			//		context/section and if one is not defined then in grammar
+// 			//		root.
+// 			// NOTE: setting 'root' will start from root top.
+// 			next: <section-name> | 'root' | 'stop',
+//
+// 			// A section to include in the current....
+// 			//
+// 			// NOTE: attributes in the current section will overload the
+// 			//		included attrs.
+// 			include: <section-name>,
 //
 //
 // 			// Parsing data...
@@ -299,7 +319,14 @@ ECode.checkECode = function(ecode){
 // 	{
 // 		<section-name>: <code-value>,
 // 		...
+//
+// 		// the unparsed tail of the ecode...
+// 		tail: <str>,
 // 	}
+//
+// Reserved field names:
+// 	tail
+// 	error
 //
 //
 // ecode -> object:
@@ -312,6 +339,7 @@ ECode.checkECode = function(ecode){
 // 	- join the codes.
 //
 // XXX use this to generate db fields...
+// 		...ignore manufacturer and model fields...
 // XXX move into a static JSON file...
 var ecodeFormat = {
 	manufacturer: {
@@ -321,8 +349,6 @@ var ecodeFormat = {
 
 		20: 'Alfa Romeo',
 		21: 'Aston Martin',
-		// XXX is this correct???
-		// XXX which one do we chose when we generate an ecode???
 		22: ['Austin', 'MG', 'Morris', 'Triumph'],
 		24: 'BMW',
 		25: 'Bedford',
@@ -365,7 +391,7 @@ var ecodeFormat = {
 		85: ['Audi', 'Volkswagen'],
 		88: ['Volvo', 'Volvo Trucks'],
 	},
-	// XXX
+	// XXX get models from reverse engineering catalog erocodes...
 	model: {
 		title: 'Model',
 		length: 2,
@@ -377,6 +403,7 @@ var ecodeFormat = {
 		length: 1,
 		required: true,
 
+		// windshield...
 		A: {
 			title: 'Ветровое стекло',
 			next: 'windshield',
@@ -390,7 +417,51 @@ var ecodeFormat = {
 			next: 'windshield',
 		},
 
-		// XXX
+		// XXX rear windows...
+		B: {
+			title: 'Задние стекло',
+			next: 'rear',
+		},
+
+		// XXX side windows...
+		F: {
+			title: 'Боковое стекло',
+			next: 'side',
+		},
+		L: {
+			title: 'Боковое стекло',
+			next: 'side',
+		},
+		R: {
+			title: 'Боковое стекло',
+			next: 'side',
+		},
+
+		// XXX accessories...
+		D: {
+			title: 'Аксесуар',
+			next: 'accessory',
+		},
+		E: {
+			title: 'Аксесуар',
+			next: 'accessory',
+		},
+		H: {
+			title: 'Аксесуар',
+			next: 'accessory',
+		},
+		M: {
+			title: 'Аксесуар',
+			next: 'accessory',
+		},
+		T: {
+			title: 'Аксесуар',
+			next: 'accessory',
+		},
+		S: {
+			title: 'Аксесуар',
+			next: 'accessory',
+		},
 	},
 
 	// the rest of the fields are type dependant...
@@ -398,47 +469,17 @@ var ecodeFormat = {
 
 
 	// XXX do we have to indicate that this is a group??
+	// XXX is the color set common and if so, can we split it out into a gneric section?
 	windshield: {
-		
-		
 		// types: A, B and C
 		color: {
-			title: 'Color',
-			length: 2,
 			required: true,
-
-			AB: 'прозрачный цвет стекла, противоударное (5 слоев)',
-			AC: 'противоударное стекло (2-х слойное + несколько слоев PVB)',
-			AF: 'пулезащищенное стекло (2-х слойное + 1 слой поликарбоната)',
-			AG: 'противоударное зеленое стекло (5 слоев)',
-			AP: 'скрытое/security стекло (5 слоев)',
-			AS: 'прозрачный цвет стекла, противоударное (3 слоя)',
-			BA: 'синий цвет стекла c акустикой ',
-			BB: 'синий цвет стекла c шумопоглощением IR, UV',
-			BL: 'синий цвет стекла ',
-			BS: 'синий цвет стекла с антибликовым напылением от солнца',
-			BZ: 'бронзовый цвет стекла',
-			CA: 'прозрачный цвет стекла c акустикой',
-			CB: 'прозрачный цвет стекла c шумопоглощением IR, UV',
-			CC: 'прозрачный цвет стекла с теплоотражающим покрытием',
-			CD: 'прозрачный цвет стекла c теплоотражающим покрытием и с акустикой',
-			CH: 'стекло с покрытием с высоким тепловым светоотражающим эффектом',
-			CK: 'стекло с покрытием, тепло/светоотражающим эффектом и с акустикой',
-			CL: 'прозрачный цвет стекла',
-			GA: 'зеленый цвет стекла c акустикой',
-			GB: 'зеленый цвет стекла c шумопоглощением IR, UV',
-			GC: 'зеленый цвет стекла c шумопоглощением IR, UV и с акустикой',
-			GN: 'зеленый цвет стекла ',
-			GS: 'зеленый цвет стекла с антибликовым напылением от солнца',
-			GY: 'серый цвет стекла ',
-			LG: 'светло-зеленый цвет стекла (Japan) ',
-			YA: 'серый цвет стекла c акустикой',
-			YC: 'серый цвет стекла c покрытием',
+			include: 'glass_colors',
 		},
 		stripColor: {
+			required: true,
 			title: 'Strip color',
 			length: 2,
-			required: true,
 
 			BL: 'blue',
 			BZ: 'bronze',
@@ -482,21 +523,111 @@ var ecodeFormat = {
 			required: false,
 		}
 	},
+
+	rear: {
+		color: {
+			required: true,
+			include: 'glass_colors',
+		},
+		bodyType: {
+			length: 1,
+			required: true,
+
+			// XXX
+		},
+		doors: {
+			length: 1,
+			required: false,
+
+			// XXX number...
+		},
+		features: {
+			title: 'Features',
+			length: 1,
+			repeats: 4,
+			required: false,
+
+			// XXX
+		},
+		mod: {
+			title: 'Modifications',
+			length: 2,
+			required: false,
+
+			// XXX
+		},
+	},
+
+	side: {
+		color: {
+			required: true,
+			include: 'glass_colors',
+		},
+	},
+
+	accessory: {
+	},
+
+
+	// generic sets...
+	glass_colors: {
+		skip: true,
+
+		title: 'Color',
+		length: 2,
+
+		AB: 'прозрачный цвет стекла, противоударное (5 слоев)',
+		AC: 'противоударное стекло (2-х слойное + несколько слоев PVB)',
+		AF: 'пулезащищенное стекло (2-х слойное + 1 слой поликарбоната)',
+		AG: 'противоударное зеленое стекло (5 слоев)',
+		AP: 'скрытое/security стекло (5 слоев)',
+		AS: 'прозрачный цвет стекла, противоударное (3 слоя)',
+		BA: 'синий цвет стекла c акустикой ',
+		BB: 'синий цвет стекла c шумопоглощением IR, UV',
+		BL: 'синий цвет стекла ',
+		BS: 'синий цвет стекла с антибликовым напылением от солнца',
+		BZ: 'бронзовый цвет стекла',
+		CA: 'прозрачный цвет стекла c акустикой',
+		CB: 'прозрачный цвет стекла c шумопоглощением IR, UV',
+		CC: 'прозрачный цвет стекла с теплоотражающим покрытием',
+		CD: 'прозрачный цвет стекла c теплоотражающим покрытием и с акустикой',
+		CH: 'стекло с покрытием с высоким тепловым светоотражающим эффектом',
+		CK: 'стекло с покрытием, тепло/светоотражающим эффектом и с акустикой',
+		CL: 'прозрачный цвет стекла',
+		GA: 'зеленый цвет стекла c акустикой',
+		GB: 'зеленый цвет стекла c шумопоглощением IR, UV',
+		GC: 'зеленый цвет стекла c шумопоглощением IR, UV и с акустикой',
+		GN: 'зеленый цвет стекла ',
+		GS: 'зеленый цвет стекла с антибликовым напылением от солнца',
+		GY: 'серый цвет стекла ',
+		LG: 'светло-зеленый цвет стекла (Japan) ',
+		YA: 'серый цвет стекла c акустикой',
+		YC: 'серый цвет стекла c покрытием',
+	},
 }
 
 // XXX test...
-var ecode2obj = function(ecode, grammar){
-	var res = {}
+var ecode2obj = function(ecode, grammar, res){
 	var pos = 0
+	res = res || {ecode: ecode}
 	grammar = grammar || ecodeFormat
+	var root = grammar
+	var next = null
 
 	for(var k in grammar){
 		var part = grammar[k]
 
+		if(part.include){
+			// XXX is this too optimistic???
+			part.__proto__ = grammar[part.include] 
+				|| root[part.include] 
+				|| part.__proto__
+		}
+
 		var len = part.length
 
 		// skip sections...
-		if(len == null){
+		if(len == null || (part.hasOwnProperty('skip') && part.skip == true)){
 			continue
 		}
 
@@ -513,22 +644,24 @@ var ecode2obj = function(ecode, grammar){
 			if(required && e.length < len){
 				return {
 					error:'ECode too short: required field missing or incomplete.',
-					filed: k,
-					repeat: repeat,
-					vals: vals,
+					failed: k,
+					rule: part,
 					at: e,
+
+					vals: vals,
 					partial: res,
-					ecode: ecode,
+					tail: ecode.slice(pos),
 				}
 			}
 
-			// XXX complain about repeat > 0 && val.next != null ????
-	
 			var val = part[e]
 
 			// not defined...
 			if(val == null){
-				if(required){
+				// if required push...
+				if(required 
+						// if not required but matches a given pattern then push...
+						|| (part.pattern && RegExp(part.pattern).test(e))){
 					vals.push(e)
 
 				// break out on first non-match...
@@ -548,9 +681,8 @@ var ecode2obj = function(ecode, grammar){
 			} else {
 				vals.push( val.title || e)
 
-				// XXX can this be done in a repeat > 0
 				if(val.next){
-					grammar = grammar[val.next]
+					next = val.next
 				}
 			}
 
@@ -564,8 +696,34 @@ var ecode2obj = function(ecode, grammar){
 		}
 
 		res[k] = part.repeats == null ? vals[0] : vals
+
+		// recur into next section...
+		if(next != null){
+			if(next == 'stop'){
+				break
+			}
+
+			if(next == 'root'){
+				next = root
+
+			} else {
+				next = grammar[next] || root[next]
+			}
+
+			res = ecode2obj(ecode.slice(pos), next, res)
+
+			if(res.error != null){
+				return res
+			}
+
+			// prepare to continue...
+			ecode = res.tail
+			pos = 0
+			next = null
+		}
 	}
 
+	res.tail = ecode.slice(pos) 
 	return res
 }
 
@@ -579,6 +737,8 @@ var obj2ecode = function(ecode){
 
 // get all the top level fields and go down the .next sections only for 
 // existing and matching elements...
+//
+// XXX ignore all fields up-to type...
 var ecodeFields = function(query){
 }
 

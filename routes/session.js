@@ -10,7 +10,10 @@ router.get('/login',
 			res.redirect('/')
 
 		} else {
-			res.render('login', { title: 'Express' })
+			res.render('login', { 
+				user: req.user,
+				title: 'Express' 
+			})
 		}
 	})
 router.post('/login',
