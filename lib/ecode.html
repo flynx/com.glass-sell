@@ -1,22 +1,67 @@
 <!doctype html>
 <html>
 <head>
+<meta charset="UTF-8">
 <style>
 
+#fields .error {
+	color: red;
+}
 
 
 </style>
 
+<script src="../public/js/jquery-1.11.3.min.js"></script>
 <script src="ecode.js"></script>
 <script>
 
+function showECodeFields(){
+	var ecode = ecode2obj($('#ecode').val())
+	
+	var fields = $('#fields').empty()
+
+	if(ecode.error){
+		$('<span class="error">')
+			.text(ecode.error + '('+ ecode.failed +')')
+			.appendTo(fields)
+
+	} else {
+		var table = $('<table>')
+			.appendTo(fields)
+		
+		for(var k in ecode){
+			var val = ecode[k]
+			$('<tr>')
+				.append($('<td>').text(k))
+				.append($('<td>')
+					.text(val.constructor === Array ? 
+						(val[1] || val[0]) + (val[1] ? ' ('+val[0]+')' : '')
+						: val))
+				.appendTo(table)
+		}
+	}
+}
 
 
 </script>
 </head>
 <body>
 
+<h1>ECode parser</h1>
+<input id="ecode" type="text" list="ecodes" oninput="showECodeFields()">
+<datalist id="ecodes">
+	<option value="2031BGNHA1J">
+	<option value="2037LGSH3FDW">
+	<option value="2037AGSGY">
+</datalist>
+<!--button onclick="showECodeFields()">parse</button-->
+
+<div id="fields">
+</div>
+
+
 
 
 </body>
 </html>
+<!-- vim:set ts=4 sw=4 : -->
