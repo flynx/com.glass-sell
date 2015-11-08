@@ -19,7 +19,19 @@
 	cursor: pointer;
 }
 .ecode-demo .part:hover {
-	background-color: yellow;
+	color: white;
+	background-color: gray;
+}
+.ecode-demo .part:hover:before {
+	content: "";
+	position: absolute;
+
+	height: 50%;
+	width: 110%;
+	top: 95%;
+
+	border-left: solid 1px gray;
+	border-bottom: solid 1px gray;
 }
 .ecode-demo .part:hover:after {
 	content: attr(value);
@@ -27,12 +39,17 @@
 	display: inline;
 	position: absolute;
 
-	min-width: 100px;
+	min-width: 110%;
 	width: auto;
 	height: auto;
-	left: 105%;
+	left: 110%;
+	top: 100%;
 
+	padding-left: 1pt;
+
+	border-left: solid 5px gray;
 	color: rgba(0, 0, 0, 0.5);
+	background-color: white;
 }
 
 </style>
