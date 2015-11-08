@@ -42,15 +42,15 @@
 <script>
 
 function getEcode(){
-	return ecode2obj($('#ecode').val())
+	return $('#ecode').val().trim()
 }
 
 function clearField(){
 	$('#fields').empty()
 }
 
-function showECodeFields(){
-	var ecode = getEcode() 
+function showECodeFields(ecode){
+	var ecode = ecode || ecode2obj(getEcode())
 	
 	var fields = $('#fields')
 
@@ -82,8 +82,8 @@ function showECodeFields(){
 	}
 }
 
-function showEcodeDemo(){
-	var ecode = getEcode() 
+function showEcodeDemo(ecode){
+	var ecode = ecode || ecode2obj(getEcode())
 	
 	var fields = $('#fields')
 
@@ -116,9 +116,12 @@ function showEcodeDemo(){
 
 
 function show(){
-	clearField()
-	showECodeFields()
-	showEcodeDemo()
+	var ecode = getEcode()
+	if(ecode != ''){
+		clearField()
+		showECodeFields()
+		showEcodeDemo()
+	}
 }
 
 
