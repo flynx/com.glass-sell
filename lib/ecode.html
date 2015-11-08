@@ -8,6 +8,32 @@
 	color: red;
 }
 
+#fields td:first-child {
+	font-weight: bold;
+}
+
+.ecode-demo {
+	display: inline-block;
+	position: relative;
+	width: auto;
+	cursor: pointer;
+}
+.ecode-demo .part:hover {
+	background-color: yellow;
+}
+.ecode-demo .part:hover:after {
+	content: attr(value);
+
+	display: inline;
+	position: absolute;
+
+	min-width: 100px;
+	width: auto;
+	height: auto;
+	left: 105%;
+
+	color: rgba(0, 0, 0, 0.5);
+}
 
 </style>
 
@@ -15,31 +41,84 @@
 <script src="ecode.js"></script>
 <script>
 
-function showECodeFields(){
-	var ecode = ecode2obj($('#ecode').val())
-	
-	var fields = $('#fields').empty()
+function getEcode(){
+	return ecode2obj($('#ecode').val())
+}
 
+function clearField(){
+	$('#fields').empty()
+}
+
+function showECodeFields(){
+	var ecode = getEcode() 
+	
+	var fields = $('#fields')
+
+	// report a parse error...
 	if(ecode.error){
 		$('<span class="error">')
 			.text(ecode.error + '('+ ecode.failed +')')
 			.appendTo(fields)
 
+	// show the parsed result...
 	} else {
 		var table = $('<table>')
+			.appendTo(fields)
+
+		for(var k in ecode){
+			var val = ecode[k]
+			val = val[0].constructor === Array ? val : [val]
+
+			val.forEach(function(val){
+				$('<tr>')
+					.append($('<td>').text(k))
+					.append($('<td>')
+						.text(val.constructor === Array ? 
+							(val[1] || val[0]) + (val[1] ? ' ('+val[0]+')' : '')
+							: val))
+					.appendTo(table)
+			})
+		}
+	}
+}
+
+function showEcodeDemo(){
+	var ecode = getEcode() 
+	
+	var fields = $('#fields')
+
+	// report a parse error...
+	if(ecode.error){
+		$('<span class="error">')
+			.text(ecode.error + '('+ ecode.failed +')')
+			.appendTo(fields)
+
+	// show the parsed result...
+	} else {
+		var demo = $('<div class="ecode-demo">')
 			.appendTo(fields)
 		
 		for(var k in ecode){
 			var val = ecode[k]
-			$('<tr>')
-				.append($('<td>').text(k))
-				.append($('<td>')
-					.text(val.constructor === Array ? 
-						(val[1] || val[0]) + (val[1] ? ' ('+val[0]+')' : '')
-						: val))
-				.appendTo(table)
+			val = val[0].constructor === Array ? val : [val]
+
+			val.forEach(function(val){
+				if(k != 'ecode'){
+					$('<span class="part">')
+							.text(val.constructor === Array ?  (val[1] ? val[0] : val) : val)
+							.attr('value', val.constructor === Array ?  val[1] || k : k)
+						.appendTo(demo)
+				}
+			})
 		}
 	}
+}
+
+
+function show(){
+	clearField()
+	showECodeFields()
+	showEcodeDemo()
 }
 
 
@@ -48,13 +127,13 @@ function showECodeFields(){
 <body>
 
 <h1>ECode parser</h1>
-<input id="ecode" type="text" list="ecodes" oninput="showECodeFields()">
+<input id="ecode" type="text" list="ecodes" oninput="show()">
 <datalist id="ecodes">
 	<option value="2031BGNHA1J">
 	<option value="2037LGSH3FDW">
 	<option value="2037AGSGY">
 </datalist>
-<!--button onclick="showECodeFields()">parse</button-->
+<!--button onclick="show()">parse</button-->
 
 <div id="fields">
 </div>
