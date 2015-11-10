@@ -21,6 +21,8 @@
 	position: relative;
 	width: auto;
 	cursor: pointer;
+
+	margin: 20px;
 }
 .ecode-demo .part:hover {
 	color: white;
@@ -74,9 +76,8 @@ function clearField(){
 }
 
 
-// XXX might be a good idea to make this into an ecode iterator...
 function showECodeFields(ecode){
-	var ecode = ecode || ecode2obj(getEcode())
+	var ecode = ecode || new ECode(getEcode())
 	
 	var fields = $('#fields')
 
@@ -91,28 +92,18 @@ function showECodeFields(ecode){
 		var table = $('<table>')
 			.appendTo(fields)
 
-		for(var k in ecode){
-			var val = ecode[k]
-			if(val == null || val.length == 0){
-				continue
-			}
-			val = val[0].constructor === Array ? val : [val]
-
-			val.forEach(function(val){
-				$('<tr>')
-					.append($('<td>').text(k))
-					.append($('<td>')
-						.text(val.constructor === Array ? 
-							(val[1] || val[0]) + (val[1] ? ' ('+val[0]+')' : '')
-							: val))
-					.appendTo(table)
-			})
-		}
+		ecode.fields(function(key, value, text){
+			$('<tr>')
+				.append($('<td>').text(key))
+				.append($('<td>')
+					.text(text != null ? (text + '('+ value +')') : value))
+				.appendTo(table)
+		})
 	}
 }
 
 function showEcodeDemo(ecode){
-	var ecode = ecode || ecode2obj(getEcode())
+	var ecode = ecode || new ECode(getEcode())
 	
 	var fields = $('#fields')
 
@@ -127,22 +118,12 @@ function showEcodeDemo(ecode){
 		var demo = $('<div class="ecode-demo">')
 			.appendTo(fields)
 		
-		for(var k in ecode){
-			var val = ecode[k]
-			if(val == null || val.length == 0){
-				continue
-			}
-			val = val[0].constructor === Array ? val : [val]
-
-			val.forEach(function(val){
-				if(k != 'ecode'){
-					$('<span class="part">')
-							.text(val.constructor === Array ?  (val[1] ? val[0] : val) : val)
-							.attr('value', val.constructor === Array ?  val[1] || k : k)
-						.appendTo(demo)
-				}
-			})
-		}
+		ecode.fields(function(key, value, text){
+			$('<span class="part">')
+					.text(value)
+					.attr('value', text || key)
+				.appendTo(demo)
+		})
 	}
 }
 
@@ -151,8 +132,8 @@ function show(){
 	var ecode = getEcode()
 	if(ecode != ''){
 		clearField()
-		showECodeFields()
 		showEcodeDemo()
+		showECodeFields()
 	}
 }
 
@@ -167,6 +148,7 @@ function show(){
 	<option value="2031BGNHA1J">
 	<option value="2037LGSH3FDW">
 	<option value="2037AGSGY">
+	<option value="8572AGAGYAHMVW1B">
 </datalist>
 <!--button onclick="show()">parse</button-->
 
