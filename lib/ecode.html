@@ -110,7 +110,7 @@ function showEcodeDemo(ecode){
 	// report a parse error...
 	if(ecode.error){
 		$('<div class="error">')
-			.text(ecode.error + '('+ ecode.failed +')')
+			.text(ecode.error + ' ('+ ecode.failed +')')
 			.appendTo(fields)
 
 	// show the parsed result...
