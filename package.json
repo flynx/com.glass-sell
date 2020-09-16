@@ -18,7 +18,7 @@
     "express-users": "^0.3.2",
     "jade": "~1.9.2",
     "mongodb": "^3.6.2",
-    "mongoose": "^4.0.1",
+    "mongoose": "^5.10.5",
     "morgan": "~1.5.1",
     "passport": "^0.2.1",
     "passport-local": "^1.0.0",
