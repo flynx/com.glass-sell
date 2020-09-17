@@ -10,5 +10,8 @@ pids
 *.pid
 *.seed
 
+# guard against adding keys to the repo...
+ssl/server.*
+
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release

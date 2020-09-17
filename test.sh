@@ -1,3 +1,3 @@
 #!/bin/bash
 
-set DEBUG=myapp & nodemon ./bin/www
+DEBUG=myapp npx nodemon ./bin/www

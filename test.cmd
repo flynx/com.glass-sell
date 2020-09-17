@@ -1,1 +1,1 @@
-set DEBUG=myapp & nodemon .\bin\www
+set DEBUG=myapp & npx nodemon .\bin\www
